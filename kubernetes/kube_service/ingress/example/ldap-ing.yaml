@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: app-ingress
+spec:
+  rules:
+  - host: %%MASTER_HOSTNAME%%
+    http:
+      paths:
+      - backend:
+          serviceName: ldap
+          servicePort: 8181
+        path: /ldap
+  tls:
+  - hosts:
+    - %%MASTER_HOSTNAME%%
+    secretName: ingress-certificate

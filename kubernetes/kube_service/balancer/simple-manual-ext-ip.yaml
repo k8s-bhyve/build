@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: lb-svc
+spec:
+  type: LoadBalancer
+  externalIPs:
+     - 192.168.0.100
+  selector:
+    app: node
+  ports:
+   - name: node
+     port: 80
+     targetPort: 8080

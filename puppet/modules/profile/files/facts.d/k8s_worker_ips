@@ -1,0 +1,31 @@
+#!/bin/sh
+
+worker_list=$( for i in $( find /export/worker/ -maxdepth 1 -type d 2>/dev/null ); do
+	p1=${i%%/export/worker/*}
+	p2=${i##*/export/worker/}
+	[ -z "${p2}" ] && continue
+	printf "${p2} "
+done )
+
+[ -z "${worker_list}" ] && exit 0
+
+worker_ips=$( for i in ${worker_list}; do
+	[ ! -r /export/worker/${i}/ip ] && continue
+	worker_num=$(( worker_num + 1 ))
+	ip=$( cat /export/worker/${i}/ip )
+	[ -z "${ip}" ] && continue
+	worker_num=$(( worker_num + 1 ))
+	printf "${ip} "
+done )
+
+[ -z "${worker_ips}" ] && exit 0
+
+worker_num=$( echo ${worker_ips} | wc -w | awk '{printf $1}' )
+
+[ -z "${worker_num}" ] && exit 0
+
+echo "k8s_worker_num=\"${worker_num}\""
+echo "k8s_worker_list=\"${worker_list}\""
+echo "k8s_worker_ips=\"${worker_ips}\""
+
+exit 0

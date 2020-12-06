@@ -1,0 +1,102 @@
+classes:
+  - profile::custom_facts
+  - profile::file
+  - profile::sysctl
+  - profile::package
+  - cbsd_k8s::config
+  - timezone
+  - crontab
+  - mailalias
+  - dynmotd
+  - lsyncd
+  - keepalived
+
+profile::package::entries:
+  tmux:
+    ensure: "present"
+  git:
+    ensure: "present"
+  socat:
+    ensure: "present"
+  nfs-common:
+    ensure: "present"
+
+cbsd_k8s::config::config_file_path: /kubernetes/config
+cbsd_k8s::config::config_source: %%CONFIG_SOURCE%%
+cbsd_k8s::config::etcd_ver: %%ETCD_VER%%
+cbsd_k8s::config::cluster_name: %%CLUSTER%%
+
+cbsd_k8s::config::api_server: %%API_SERVER%%
+cbsd_k8s::config::api_servers: %%API_SERVERS%%
+cbsd_k8s::config::apiserver_host: %%APISERVER_HOST%%
+
+cbsd_k8s::config::vip: %%VIP%%
+
+profile::package::entries:
+  tmux:
+    ensure: "present"
+  git:
+    ensure: "present"
+  socat:
+    ensure: "present"
+  conntrack:
+    ensure: "present"
+  wget:
+    ensure: "present"
+  telnet:
+    ensure: "present"
+  curl:
+    ensure: "present"
+  ipset:
+    ensure: "present"
+  nfs-common:
+    ensure: "present"
+
+lsyncd::settings:
+  logfile: '"/var/log/lsyncd.log"'
+  statusFile: '"/var/log/lsyncd.status"'
+  statusInterval: 1
+  maxProcesses: 1
+  insist: 1
+
+profile::file::entries:
+  /root/bin:
+    ensure: directory
+    path: "/root/bin"
+    group: "root"
+    owner: "root"
+    mode: "0750"
+  /root/bin/rpc-executor.sh:
+    ensure: "present"
+    path: "/root/bin/rpc-executor.sh"
+    group: "root"
+    owner: "root"
+    mode: "0500"
+    content: |
+      #!/bin/sh
+      . /kubernetes/config
+      [ -z "${VIP}" ] && exit 0
+      MY_IPS=$( hostname -I )
+      supermaster=0
+      for i in ${MY_IPS}; do
+        if [ "${i}" = "${VIP}" ]; then
+          supermaster=1
+          break
+        fi
+      done
+      [ ${supermaster} -eq 0 ] && exit 0
+      [ ! -d /export/rpc ] && exit 0
+      find /export/rpc/ -maxdepth 1 -type f | while read f; do
+        echo ${f}
+        timeout 50 /bin/sh ${f}
+        ret=$?
+        [ ${ret} -eq 0 ] && rm -f ${f}
+      done
+
+crontab::crontab_entries:
+  '/root/bin/rpc-executor.sh':
+    command: |
+      nice -n 19 ionice -c 3 /usr/bin/flock -w1 -x /tmp/rpc_executer.lock /root/bin/rpc-executor.sh > /dev/null 2>&1
+    user: 'root'
+    minute: '*'
+    hour: '*'

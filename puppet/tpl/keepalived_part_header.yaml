@@ -1,0 +1,9 @@
+
+# both nodes should use BACKUP state
+# but different weights and nopreemt:
+# first node:
+#   priority: 101
+# second node:
+#   priority: 100
+#   nopreemt: true
+keepalived::vrrp_instance:

@@ -1,0 +1,13 @@
+# Added by Puppet
+<%-
+if @package_ensure == 'absent'
+  enabled='NO'
+else
+  enabled='YES'
+end
+-%>
+
+lsyncd_enable="<%= enabled %>"
+<% if @config_file -%>
+lsyncd_configfile="<%= @config_dir %>/<%= @config_file %>"
+<% end -%>

@@ -1,0 +1,36 @@
+if [ ! "$_TOOLS_SUBR" ]; then
+_TOOLS_SUBR=1
+###
+
+MY_APP="CBSD k8s"
+ECHO="echo -e"
+DATE_CMD="date"
+
+# fatal error. Print message then quit with exitval
+err() {
+	exitval=$1
+	shift
+	${ECHO} "$*" 1>&2
+	[ "${pause_after_err}" = "1" ] && echo "Press any key" && read p
+	exit ${exitval}
+}
+
+# Same as err but also dup message to syslog with WARNING verbosity level
+log_err() {
+	local _msg
+	exitval=$1
+	shift
+	${ECHO} "$*"
+	# remove ANSII
+	_msg=$( ${ECHO} "$*" | ${SED_CMD} "s,$(printf '\033')\\[[0-9;]*[a-zA-Z],,g" )
+	cbsdlogger WARNING ${CBSD_APP}: ${_msg}
+	exit ${exitval}
+}
+
+# print $MYARG and exit
+usage() {
+	err 1 "usage: $0 ${MYARG}"
+}
+
+###
+fi

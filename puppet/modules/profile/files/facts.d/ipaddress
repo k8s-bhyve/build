@@ -1,0 +1,45 @@
+#!/bin/sh
+
+is_private()
+{
+	local _ret
+	echo "$2" | grep -q ^${1}\.
+	_ret=$?
+	if [ ${_ret} -eq 0 ]; then
+		eval ipaddress_private_${1}="${2}"
+		[ -z "${ipaddress_first_private}" ] && ipaddress_first_private="${2}"
+	fi
+	return ${_ret}
+}
+
+kernel=$( uname -s )
+ipaddress_private_10=
+ipaddress_private_172=
+ipaddress_private_192=
+ipaddress_first_private=
+
+case "${kernel}" in
+	FreeBSD)
+		tmp_ip=$( /sbin/ifconfig | awk '/inet [0-9]+/{print $2}' | xargs )
+		;;
+	Linux)
+		tmp_ip=$( hostname -I )
+		;;
+	*)
+		# unknown os
+		exit 0
+		;;
+esac
+
+# prune docker net
+for i in ${tmp_ip}; do
+	[ -z "${ipaddress_private_172}" ] && is_private 172 ${i}
+	[ -z "${ipaddress_private_10}" ] && is_private 10 ${i}
+	[ -z "${ipaddress_private_192}" ] && is_private 192 ${i}
+done
+
+[ -n "${ipaddress_first_private}" ] && echo "ipaddress_first_private=${ipaddress_first_private}"
+[ -n "${ipaddress_private_10}" ] && echo "ipaddress_private_10=${ipaddress_private_10}"
+[ -n "${ipaddress_private_192}" ] && echo "ipaddress_private_192=${ipaddress_private_192}"
+
+exit 0

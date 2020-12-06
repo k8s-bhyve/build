@@ -1,0 +1,4 @@
+# do nothing
+class stale {
+
+}

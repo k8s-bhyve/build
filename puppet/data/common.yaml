@@ -1,0 +1,80 @@
+timezone::timezone: Europe/Moscow
+
+crontab::purge: true
+
+sudo::purge: true
+sudo::config_file_replace: true
+
+profile::sysctl::entries:
+  net.ipv4.tcp_rmem:
+    value: 4096 87380 16777216
+  net.ipv4.tcp_wmem:
+    value: 4096 65536 16777216
+  net.core.rmem_max:
+    value: 16777216
+  net.core.wmem_max:
+    value: 16777216
+  net.core.netdev_max_backlog:
+    value: 5000
+  net.ipv4.tcp_window_scaling:
+    value: 1
+  net.core.somaxconn:
+    value: 65535
+  net.ipv4.tcp_max_orphans:
+    value: 65536
+  net.ipv4.tcp_keepalive_time:
+    value: 1800
+  net.ipv4.tcp_keepalive_intvl:
+    value: 15
+  net.ipv4.tcp_keepalive_probes:
+    value: 5
+  net.ipv4.tcp_max_syn_backlog:
+    value: 4096
+  net.ipv4.tcp_synack_retries:
+    value: 1
+  net.ipv4.tcp_mem:
+    value: 50576   64768   98152
+  net.ipv4.tcp_orphan_retries:
+    value: 0
+#  net.netfilter.nf_conntrack_max:
+#    value: 16777216
+  net.ipv4.tcp_timestamps:
+    value: 1
+  net.ipv4.tcp_sack:
+    value: 1
+  net.ipv4.tcp_congestion_control:
+    value: htcp
+  net.ipv4.tcp_no_metrics_save:
+    value: 1
+#  net.ipv4.route.flush:
+#    value: 1
+  net.ipv4.conf.lo.rp_filter:
+    value: 1
+  net.ipv4.conf.lo.accept_source_route:
+    value: 0
+  net.ipv4.tcp_rfc1337:
+    value: 1
+  net.ipv4.icmp_echo_ignore_all:
+    value: 0
+  net.core.rmem_default:
+    value: 65536
+  net.core.wmem_default:
+    value: 65536
+  fs.inotify.max_user_watches:
+    value: 16777216
+  net.ipv4.tcp_fin_timeout:
+    value: 15
+  net.ipv4.tcp_tw_reuse:
+    value: 0
+  net.ipv4.ip_local_port_range:
+    value: '10000 65535'
+  fs.file-max:
+    value: '1000000'
+  net.ipv4.ip_nonlocal_bind:
+    value: '1'
+  net.ipv6.conf.all.disable_ipv6:
+    value: '1'
+  net.ipv6.conf.default.disable_ipv6:
+    value: '1'
+  net.ipv6.conf.lo.disable_ipv6:
+    value: '1'

@@ -1,0 +1,21 @@
+{
+  "CHANGELOG.md": "7515eb843a450e0bdcb4d0239acad51b",
+  "Gemfile": "6d95379be31449306bcf402f0cda7220",
+  "LICENSE": "dd6462909b746fc9ec71656f9e9c71f9",
+  "README.md": "f22c0d26a8b8241e2cbfdc03e96c488e",
+  "Rakefile": "9fa53df215e4b68e62591deac3aad5ba",
+  "lib/puppet/provider/sysctl/augeas.rb": "d49c7a3d48c642856a85c54569b18382",
+  "lib/puppet/type/sysctl.rb": "21eeb26cd97adb71239ff42e1680694e",
+  "metadata.json": "96964427a9f92aced04fe99554ddedaf",
+  "spec/acceptance/nodesets/default.yml": "601562c166d3e7cc81171d4d5a32a7b5",
+  "spec/acceptance/sysctl_spec.rb": "99627857dda3b4cd570558060a4801a4",
+  "spec/fixtures/unit/puppet/provider/sysctl/augeas/broken": "d1e3eb972f9f20e4fde7066384fc4a49",
+  "spec/fixtures/unit/puppet/provider/sysctl/augeas/empty": "d41d8cd98f00b204e9800998ecf8427e",
+  "spec/fixtures/unit/puppet/provider/sysctl/augeas/full": "f647c9efc637e452c88259ab7f90e71c",
+  "spec/fixtures/unit/puppet/provider/sysctl/augeas/small": "f7c2d9f63cd00cca8d055bcf83e4911c",
+  "spec/spec.opts": "a600ded995d948e393fbe2320ba8e51c",
+  "spec/spec_helper.rb": "aa36d30d17b2cab229e4381d90e97472",
+  "spec/spec_helper_acceptance.rb": "aefba3bd5659c66d1800b78f207e597b",
+  "spec/unit/puppet/provider/sysctl/augeas_spec.rb": "3d5ac8f6a29cc58f3b2ff374af702f25",
+  "spec/unit/puppet/type/sysctl_spec.rb": "3b81eadeece6f1be7ba84d4855cc098b"
+}

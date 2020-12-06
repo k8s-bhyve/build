@@ -1,0 +1,10 @@
+apiVersion: v1
+data:
+  dhparam.pem: "LS0tLS1CRUdJTiBESCBQQVJBTUVURVJTLS0tLS0KTUlHSEFvR0JBUEhYV1JRTi9MejFNWGxYdDRUNS9YeEpjdWlsN3Z4Z2FZZmZLZUJ2SkFRbXhVeHErU1V1blhRaQp3MjE3cXpoR05lR09YMWcxRnRV
+TGxhRy9pL2w2L05yWk1GbkpjWmYwK0wvaDFyVlQ1ZU1hOHZuNjVxaUhDVjQwCi9aZFJ3eGwyZXJKUW9QZ1k5S2JmaTBRditBejZTRmZQeG13TkVJMDJ5UUJCdXhZQXF6dGJBZ0VDCi0tLS0tRU5EIERIIFBBUkFNRVRFUlMtLS0tLQo="
+kind: ConfigMap
+metadata:
+  name: lb-dhparam
+  namespace: ingress
+  labels:
+    app: nginx-ingress-lb

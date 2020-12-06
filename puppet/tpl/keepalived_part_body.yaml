@@ -1,0 +1,12 @@
+  VI_%%VRID%%:
+    nopreempt: false
+    advert_int: 2
+    interface: "%{::networking.primary}"
+    state: 'MASTER'
+    virtual_router_id: %%VRID%%
+    unicast_source_ip: %%IP%%
+    priority: 101
+    auth_type: 'AH'
+    auth_pass: 'secret'
+    virtual_ipaddress: '%%VIP%%/32'
+    use_vmac: vrrp150

@@ -1,0 +1,33 @@
+---
+".gitlab-ci.yml":
+  delete: true
+".travis.yml":
+  global_env: 
+    - HONEYCOMB_WRITEKEY="7f3c63a70eecc61d635917de46bea4e6",HONEYCOMB_DATASET="litmus tests"
+  deploy_to_forge:
+    enabled: false
+  branches:
+  - release
+  use_litmus: true
+  litmus:
+    provision_list:
+      - travis_deb
+      - travis_ub
+      - travis_el7
+      - ---travis_el
+  simplecov: true
+  notifications:
+    slack:
+      secure: Ohw1KtRtFAeTQNL/8slgJ7lZ8PYCiooE6i9NWR+fCGNcAzU1LGhacnXqgXD6JCX53zdv8mkkd31AsrGWmx+iFueZkSYdAz+pEXduyRI9Rm6cTotlaGAB7NK+KgjEky7gmRao3EuogYbX7qIpzNaZ4rGUrjWSSeSDCSgGCEwblXk=
+appveyor.yml:
+  delete: true
+Gemfile:
+  optional:
+    ":development":
+    - gem: github_changelog_generator
+      git: https://github.com/skywinder/github-changelog-generator
+      ref: 20ee04ba1234e9e83eb2ffb5056e23d641c7a018
+      condition: Gem::Version.new(RUBY_VERSION.dup) >= Gem::Version.new('2.2.2')
+spec/spec_helper.rb:
+  mock_with: ":rspec"
+  coverage_report: true

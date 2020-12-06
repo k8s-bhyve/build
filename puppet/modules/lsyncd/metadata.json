@@ -1,0 +1,64 @@
+{
+  "name": "olevole-lsyncd",
+  "version": "0.1.0",
+  "author": "Oleg Ginzburg",
+  "summary": "Yet another lsyncd module",
+  "license": "BSD",
+  "source": "https://github.com/olevole/puppet-lsyncd",
+  "project_page": "https://forge.puppetlabs.com/olevole/lsyncd",
+  "issues_url": "https://github.com/olevole/puppet-lsyncd/issues",
+  "dependencies": [
+    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"}
+  ],
+  "tags": [
+    "lsyncd",
+    "rsync"
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease": [
+        "8",
+        "9"
+      ]
+    },
+    {
+      "operatingsystem": "OpenBSD"
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "SLES"
+    },
+    {
+      "operatingsystem": "Solaris"
+    },
+    {
+      "operatingsystem": "AIX"
+    },
+    {
+      "operatingsystem": "FreeBSD"
+    },
+    {
+      "operatingsystem": "DragonFly"
+    },
+    {
+      "operatingsystem": "NetBSD"
+    },
+    {
+      "operatingsystem": "Archlinux"
+    },
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "14.04",
+        "16.04"
+      ]
+    }
+  ]
+}

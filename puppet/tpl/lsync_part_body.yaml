@@ -1,0 +1,10 @@
+  sync-%%IP%%:
+    source: /export
+    targetdir: /export
+    delete: false
+    delay: 5
+    host: %%IP%%
+    options:
+      archive: true
+      compress: true
+      rsh: "'ssh -oVerifyHostKeyDNS=yes -oStrictHostKeyChecking=no -oPasswordAuthentication=no'"
