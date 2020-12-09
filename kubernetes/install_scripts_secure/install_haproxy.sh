@@ -56,13 +56,13 @@ done
 unset IFS`
 EOF
 
-if [ "${CONTAINER_ENGINE}" = "docker" ]; then
-	docker stop master-proxy
-	docker rm master-proxy
-	docker run --restart=always -d --name master-proxy -v ${HAPROXY_CFG}:/usr/local/etc/haproxy/haproxy.cfg:ro --net=host haproxy
-else
+#if [ "${CONTAINER_ENGINE}" = "docker" ]; then
+#	docker stop master-proxy
+#	docker rm master-proxy
+#	docker run --restart=always -d --name master-proxy -v ${HAPROXY_CFG}:/usr/local/etc/haproxy/haproxy.cfg:ro --net=host haproxy
+#else
 	systemctl enable haproxy
 	systemctl restart haproxy || true
-fi
+#fi
 
 exit 0

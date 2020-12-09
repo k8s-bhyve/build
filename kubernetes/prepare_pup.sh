@@ -110,6 +110,7 @@ case "${role}" in
 		exit 0
 		;;
 	addnode)
+		echo
 		;;
 	master|supermaster|worker)
 		bootstrap
@@ -165,7 +166,43 @@ cd /opt/puppetlabs/puppet
 /opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
 /opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
 
-[ ! -d /export/${real_role}/${MY_HOSTNAME} ] && mkdir -p /export/${real_role}/${MY_HOSTNAME}
+echo "my role: ${real_role}, export /export/${real_role}/${MY_HOSTNAME}"
+if [ ! -d /export/${real_role}/${MY_HOSTNAME} ]; then
+	echo "Create: /export/${real_role}/${MY_HOSTNAME}"
+	mkdir -p /export/${real_role}/${MY_HOSTNAME}
+fi
 printf "${MY_IP}" > /export/${real_role}/${MY_HOSTNAME}/ip
+echo "printf \"${MY_IP}\" > /export/${real_role}/${MY_HOSTNAME}/ip"
+
+cat /export/${real_role}/${MY_HOSTNAME}/ip
+
+
+# waiting for masters
+maxwait=200
+max=0
+st_time=$( ${DATE_CMD} +%s )
+while [ ${max} -lt ${maxwait} ]; do
+	_ret=0
+	wait_msg="${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: sync/export role to masters node: ${N2_COLOR}[${max}/${maxwait}]${N0_COLOR}"
+	echo "rsync -avz -e \"ssh -oVerifyHostKeyDNS=yes -oStrictHostKeyChecking=no -oPasswordAuthentication=no\" --exclude tmp --exclude kubernetes /export/ ${i}:/export/"
+	for i in ${INIT_MASTERS_IPS}; do
+		_res=$( timeout 10 rsync -avz -e "ssh -oVerifyHostKeyDNS=yes -oStrictHostKeyChecking=no -oPasswordAuthentication=no" --exclude tmp --exclude kubernetes /export/ ${i}:/export/ )
+		_ret=$?
+		case ${_ret} in
+			0|6|24|25)
+				_ret=0
+				;;
+			*)
+				wait_msg="${wait_msg} ${i}"
+				_ret=1
+		esac
+	done
+	[ ${_ret} -eq 0 ] && break
+	echo "${wait_msg}"
+done
+end_time=$( ${DATE_CMD} +%s )
+diff_time=$(( end_time - st_time ))
+diff_time=$( displaytime ${diff_time} )
+${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: export role done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
 
 bash /home/ubuntu/kubernetes/kube-up.sh
