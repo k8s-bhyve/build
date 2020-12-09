@@ -11,6 +11,12 @@ then
  [[ "TRACE" ]] && set -x
 fi
 
+case "${CONTAINER_ENGINE}" in
+	docker)
+		systemctl docker start || true
+		;;
+esac
+
 case "${INIT_ROLE}" in
 	worker)
 		timeout 30 rsync -avz -e "ssh -oVerifyHostKeyDNS=yes -oStrictHostKeyChecking=no -oPasswordAuthentication=no" ${VIP}:/export/kubecertificate/ /export/kubecertificate/
@@ -44,21 +50,27 @@ case "${INIT_ROLE}" in
 		;;
 esac
 
-st_time=$( ${DATE_CMD} +%s )
-if [ -r $INSTALL_PATH/install_containerd-v${CONTAINERD_VER}.sh ]; then
-	echo "containerd ${CONTAINERD_VER}"
-	/bin/bash $INSTALL_PATH/install_containerd-v${CONTAINERD_VER}.sh
-	ret=$?
-else
-	echo "containerd ${CONTAINERD_VER}"
-	/bin/bash $INSTALL_PATH/install_containerd.sh
-	ret=$?
-fi
-end_time=$( ${DATE_CMD} +%s )
-diff_time=$(( end_time - st_time ))
-diff_time=$( displaytime ${diff_time} )
-${ECHO} "${N1_COLOR}${MY_APP}: install containerd done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
-
+case "${CONTAINER_ENGINE}" in
+	docker)
+		echo
+		;;
+	*)
+		st_time=$( ${DATE_CMD} +%s )
+		if [ -r $INSTALL_PATH/install_containerd-v${CONTAINERD_VER}.sh ]; then
+			echo "containerd ${CONTAINERD_VER}"
+			/bin/bash $INSTALL_PATH/install_containerd-v${CONTAINERD_VER}.sh
+			ret=$?
+		else
+			echo "containerd ${CONTAINERD_VER}"
+			/bin/bash $INSTALL_PATH/install_containerd.sh
+			ret=$?
+		fi
+		end_time=$( ${DATE_CMD} +%s )
+		diff_time=$(( end_time - st_time ))
+		diff_time=$( displaytime ${diff_time} )
+		${ECHO} "${N1_COLOR}${MY_APP}: install containerd done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
+		;;
+esac
 st_time=$( ${DATE_CMD} +%s )
 if [ -r $INSTALL_PATH/install_kubelet-${K8S_VER}.sh ]; then
 	echo "kubelet for ${K8S_VER}"

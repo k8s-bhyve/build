@@ -41,13 +41,14 @@ get_etcd_endpoints()
 }
 
 ETCD_SERVERS="--etcd-servers=$(get_etcd_endpoints)"
-
+# /var/lib/flanneld/subnet.env
 cat <<EOF | sudo tee /etc/systemd/system/kube-apiserver.service
 [Unit]
 Description=Kubernetes API Server
 Documentation=https://github.com/kubernetes/kubernetes
 
 [Service]
+EnvironmentFile=-/run/flannel/subnet.env
 ExecStart=/opt/kubernetes/server/bin/kube-apiserver \\
   --advertise-address=${VIP} \\
   --allow-privileged=true \\

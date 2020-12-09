@@ -13,17 +13,6 @@ progdir="${0%/*}"       # Program directory
 [ ! -d ${WORKDIR}/workspace ] && err 1 "${W1_COLOR}${pgm} error: ${N1_COLOR}no such directory: ${N2_COLOR}${WORKDIR}/workspace${N0_COLOR}"
 cd ${WORKDIR}/workspace
 
-mkdir /tmp/containerd
-tar -xf containerd.tar.gz -C /tmp/containerd
-
-if [ $? -ne 0 ]; then
-	echo "Extract containerd error $( realpath containerd.tar.gz )"
-	exit 1
-fi
-
-mv /tmp/containerd/bin/* /bin/
-mkdir -p /etc/containerd/
-
 cat << EOF | sudo tee /etc/containerd/config.toml
 [plugins]
   [plugins.cri.containerd]

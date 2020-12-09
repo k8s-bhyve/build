@@ -8,9 +8,11 @@ progdir="${0%/*}"       # Program directory
 . /kubernetes/ansiicolor.subr
 . /kubernetes/time.subr
 
+HAPROXY_CFG="/etc/haproxy/haproxy.cfg"
+
 [ "${ENABLE_DEBUG}" = "true" ] && set -x
 
-cat <<EOF > /etc/haproxy/haproxy.cfg
+cat <<EOF > ${HAPROXY_CFG}
 global
         log 127.0.0.1 local0
         log 127.0.0.1 local1 notice
@@ -25,9 +27,9 @@ defaults
         option redispatch
         option http-server-close
         retries 3
-        timeout connect 5000
-        timeout client 50000
-        timeout server 50000
+        timeout connect 50000
+        timeout client 500000
+        timeout server 500000
         frontend default_frontend
         bind *:443
         default_backend master-cluster
@@ -54,7 +56,13 @@ done
 unset IFS`
 EOF
 
-systemctl enable haproxy
-systemctl restart haproxy || true
+if [ "${CONTAINER_ENGINE}" = "docker" ]; then
+	docker stop master-proxy
+	docker rm master-proxy
+	docker run --restart=always -d --name master-proxy -v ${HAPROXY_CFG}:/usr/local/etc/haproxy/haproxy.cfg:ro --net=host haproxy
+else
+	systemctl enable haproxy
+	systemctl restart haproxy || true
+fi
 
 exit 0

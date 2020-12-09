@@ -13,8 +13,15 @@ progdir="${0%/*}"       # Program directory
 [ ! -d ${WORKDIR}/workspace ] && err 1 "${W1_COLOR}${pgm} error: ${N1_COLOR}no such directory: ${N2_COLOR}${WORKDIR}/workspace${N0_COLOR}"
 cd ${WORKDIR}/workspace
 
+#clusterCIDR: "${FLANNEL_NET}"
 
-cat <<EOF | tee /var/lib/kube-proxy/kube-proxy-config.yaml
+#clusterCIDR: "10.0.0.0/24"
+#clusterCIDR: "${NODE_NETWORK}"
+# -A KUBE-SERVICES -s ! 172.17.0.0/16 -d 172.18.0.2/32 -p tcp -m comment --comment "kube-system/coredns:dns-tcp cluster IP" -m tcp --dport 53 -j KUBE-MARK-MASQ
+#                      ^^^^^^^^^^^^^^ << clusterCIDR
+case "${CONTAINER_ENGINE}" in
+	docker)
+		cat <<EOF | tee /var/lib/kube-proxy/kube-proxy-config.yaml
 kind: KubeProxyConfiguration
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 clientConnection:
@@ -22,6 +29,18 @@ clientConnection:
 mode: "iptables"
 clusterCIDR: "${FLANNEL_NET}"
 EOF
+		;;
+	*)
+		cat <<EOF | tee /var/lib/kube-proxy/kube-proxy-config.yaml
+kind: KubeProxyConfiguration
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+clientConnection:
+  kubeconfig: "/export/kubecertificate/certs/kube-proxy.kubeconfig"
+mode: "iptables"
+clusterCIDR: "127.0.0.1/8"
+EOF
+		;;
+esac
 
 cat <<EOF | tee /etc/systemd/system/kube-proxy.service
 [Unit]

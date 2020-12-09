@@ -55,17 +55,17 @@ EOF
 	apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 	echo "install"
 #	apt install -y git net-tools mc docker.io lsyncd keepalived rsync socat nfs-common
-	apt install -y git net-tools haproxy mc lsyncd keepalived rsync socat nfs-common haproxy
-#	cat <<EOF | sudo tee /etc/docker/daemon.json
-#{
-#  "exec-opts": ["native.cgroupdriver=systemd"],
-#  "log-driver": "json-file",
-#  "log-opts": {
-#    "max-size": "100m"
-#  },
-#  "storage-driver": "overlay2"
-#}
-#EOF
+	apt install -y git net-tools haproxy mc lsyncd keepalived rsync socat nfs-common haproxy docker.io
+	cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
 	apt clean -y
 	rm -f /etc/keepalived/keepalived.conf
 	dd if=/dev/urandom of=/home/ubuntu/.rnd bs=256 count=1

@@ -11,22 +11,7 @@ progdir="${0%/*}"       # Program directory
 [ "${ENABLE_DEBUG}" = "true" ] && set -x
 
 [ ! -d ${WORKDIR}/workspace ] && err 1 "${W1_COLOR}${pgm} error: ${N1_COLOR}no such directory: ${N2_COLOR}${WORKDIR}/workspace${N0_COLOR}"
-
 cd ${WORKDIR}/workspace
-
-#Install ectd
-tempdir=$( mktemp -d )
-trap "rm -rf ${tempdir}" HUP INT ABRT BUS TERM EXIT
-tar -xf etcd-linux-amd64.tar.gz -C ${tempdir}
-
-if [ $? -ne 0 ]; then
-	echo "Extract etcd error $( realpath etcd-linux-amd64.tar.gz )"
-	exit 1
-fi
-
-mkdir -p /opt/etcd/bin /opt/etcd/config /var/lib/etcd
-mv ${tempdir}/etcd*/etcd* /opt/etcd/bin
-chmod 0700 /var/lib/etcd
 
 # !! FOR DEBUG ONLY, one boot !!
 if [ "${ETCD_TMPFS}" = "1" ]; then

@@ -1,6 +1,4 @@
 #!/bin/bash
-
-exit 0
 pgm="${0##*/}"          # Program basename
 progdir="${0%/*}"       # Program directory
 : ${INSTALL_PATH:=$MOUNT_PATH/kubernetes/install_scripts_secure}
@@ -12,17 +10,11 @@ progdir="${0%/*}"       # Program directory
 
 [ "${ENABLE_DEBUG}" = "true" ] && set -x
 
+[ "${CONTAINER_ENGINE}" != "docker" ] && exit 0
+
 [ ! -d ${WORKDIR}/workspace ] && err 1 "${W1_COLOR}${pgm} error: ${N1_COLOR}no such directory: ${N2_COLOR}${WORKDIR}/workspace${N0_COLOR}"
 cd ${WORKDIR}/workspace
 
-mkdir -p /opt/flannel
-#tar xzf $FLANNEL_VERSION.tar.gz -C /opt/flannel
-tar xzf flannel-linux-amd64.tar.gz -C /opt/flannel
-if [ $? -ne 0 ]; then
-	echo "Flannel extract error"
-	exit 1
-fi
-mkdir -p /etc/flanneld
 proto='https'
 
 get_etcd_endpoints()
@@ -78,15 +70,9 @@ LimitNPROC=1048576
 #ExecStartPre=/bin/mkdir -p /run/flanneld
 
 ExecStart=/opt/flannel/flanneld \
-`if [ $ENABLE_ETCD_SSL == 'true' ]
-then
-
- echo "--etcd-cafile=$CERTIFICATE_MOUNT_PATH/ca.pem --etcd-certfile=$CERTIFICATE_MOUNT_PATH/$(hostname)-etcd-client.pem --etcd-keyfile=$CERTIFICATE_MOUNT_PATH/$(hostname)-etcd-client-key.pem "
-
-fi
-` \
-$ETCD_END_POINTS \
---iface=$HOSTINTERFACE \
+--etcd-cafile=$CERTIFICATE_MOUNT_PATH/ca.pem --etcd-certfile=$CERTIFICATE_MOUNT_PATH/$(hostname)-etcd-client.pem --etcd-keyfile=$CERTIFICATE_MOUNT_PATH/$(hostname)-etcd-client-key.pem \\
+$ETCD_END_POINTS \\
+--iface=$HOSTINTERFACE \\
 --ip-masq
 ## Updating Docker options
 #ExecStartPost=/opt/flannel/mk-docker-opts.sh -d /run/flanneld/docker_opts.env -i
@@ -122,6 +108,7 @@ EOF
 
 systemctl daemon-reload && systemctl enable flanneld && systemctl start flanneld
 
+systemctl restart docker || true
 $INSTALL_PATH/install_haproxy.sh
 
 exit 0
