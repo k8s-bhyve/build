@@ -254,24 +254,33 @@ fi
 
 # test
 if [ "${INSTALL_KUBELET_ON_MASTER}" = "true" ]; then
-maxwait=120
-for i in $( seq 1 ${maxwait} ); do
-	echo "${MY_SHORT_HOSTNAME}: waiting for kubectl get nodes ${MY_SHORT_HOSTNAME}: [${i}/${maxwait}]..."
+	maxwait=120
+	for i in $( seq 1 ${maxwait} ); do
+		echo "${MY_SHORT_HOSTNAME}: waiting for kubectl get nodes ${MY_SHORT_HOSTNAME}: [${i}/${maxwait}]..."
+		kubectl get nodes ${MY_SHORT_HOSTNAME} > /dev/null 2>&1
+		ret=$?
+		[ ${ret} -eq 0 ] && break
+		sleep 1
+	done
+
 	kubectl get nodes ${MY_SHORT_HOSTNAME} > /dev/null 2>&1
 	ret=$?
-	[ ${ret} -eq 0 ] && break
-	sleep 1
-done
-
-kubectl get nodes ${MY_SHORT_HOSTNAME} > /dev/null 2>&1
-ret=$?
-if [ ${ret} -ne 0 ]; then
-	echo "kubectl get nodes ${MY_SHORT_HOSTNAME} failed.."
-	exit ${ret}
-fi
+	if [ ${ret} -ne 0 ]; then
+		echo "kubectl get nodes ${MY_SHORT_HOSTNAME} failed.."
+		exit ${ret}
+	fi
 fi
 
+[ ! -d /export/rpc ] && mkdir -p /export/rpc
+cat > /export/rpc/task.$$ << EOF
+#!/bin/sh
+kubectl get nodes ${MY_SHORT_HOSTNAME}
+ret=\$?
+[ \${ret} -ne 0 ] && exit \${ret}
 kubectl label node ${MY_SHORT_HOSTNAME} node-role.kubernetes.io/master=
+ret=\$?
+exit \${ret}
+EOF
 
 if [ "${INIT_ROLE}" = "supermaster" ]; then
 	systemctl restart keepalived || true
