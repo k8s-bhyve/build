@@ -46,6 +46,8 @@ done
 `
 EOF
 
+[ -r server-key.pem ] && rm -f server-key.pem
+
 #Create a private key
 if [ ! -r server-key.pem ]; then
 	openssl genrsa -out server-key.pem ${CERT_KEY_BIT}
