@@ -1,4 +1,5 @@
 #!/bin/bash
+exit 0
 pgm="${0##*/}"          # Program basename
 progdir="${0%/*}"       # Program directory
 : ${INSTALL_PATH:=$MOUNT_PATH/kubernetes/install_scripts_secure}

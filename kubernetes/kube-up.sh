@@ -167,6 +167,7 @@ case "${INIT_ROLE}" in
 
 		st_time=$( ${DATE_CMD} +%s )
 		/export/kubernetes/certificates/install_certificates.sh
+		#/export/kubernetes/certificates/install_master.sh
 		end_time=$( ${DATE_CMD} +%s )
 		diff_time=$(( end_time - st_time ))
 		diff_time=$( displaytime ${diff_time} )
@@ -224,7 +225,6 @@ case "${INIT_ROLE}" in
 				timeout 30 rsync -avz -e "ssh -oVerifyHostKeyDNS=yes -oStrictHostKeyChecking=no -oPasswordAuthentication=no" /export/kubecertificate/ ${i}:/export/kubecertificate/
 			done
 			systemctl start lsyncd.service
-
 			end_time=$( ${DATE_CMD} +%s )
 			diff_time=$(( end_time - st_time ))
 			diff_time=$( displaytime ${diff_time} )
@@ -233,6 +233,7 @@ case "${INIT_ROLE}" in
 			# дожидаемся, что все мастера дошли до этапа etcd init
 			st_time=$( ${DATE_CMD} +%s )
 			max=0
+			${ECHO} "${N1_COLOR}${MY_APP} initial masters list: ${N2_COLOR}${k8s_master_list}${N0_COLOR}"
 			for i in ${k8s_master_list}; do
 				[ "${i}" = "${MY_HOSTNAME}" ] && continue
 				while [ ${max} -lt ${maxwait} ]; do
@@ -272,7 +273,7 @@ case "${INIT_ROLE}" in
 		# waiting for supermaster first
 		max=0
 		while [ ${max} -lt ${maxwait} ]; do
-			_reqfile="/export/etcd.init /export/kubecertificate/certs/ca.pem /export/kubecertificate/certs/$( hostname ).pem /export/kubecertificate/certs/$( hostname )-etcd-client.pem /export/kubecertificate/certs/$( hostname )-etcd.pem"
+			_reqfile="/export/etcd.init /export/kubecertificate/certs/server-key.pem /export/kubecertificate/certs/ca.pem /export/kubecertificate/certs/$( hostname ).pem /export/kubecertificate/certs/$( hostname )-etcd-client.pem /export/kubecertificate/certs/$( hostname )-etcd.pem"
 			ready=1
 			for i in ${_reqfile}; do
 				[ ! -r ${i} ] && ready=0 && break

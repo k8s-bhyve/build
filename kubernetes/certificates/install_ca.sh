@@ -32,4 +32,7 @@ openssl req -new -x509 -nodes -keyout ca-key.pem -out ca.pem -days ${CA_DAYS} -p
 -subj "/C=${CA_COUNTRY}/ST=${CA_STATE}/L=${CA_LOCALITY}/O=${CA_ORGANIZATION}/OU=${CA_ORGU}/CN=${CA_COMMONNAME}/emailAddress=${CA_EMAIL}"
 
 ret=$?
+
+chattr +i ${ca.pem}
+
 exit ${ret}
