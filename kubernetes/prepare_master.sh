@@ -54,8 +54,7 @@ EOF
 	echo "upgrade"
 	apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 	echo "install"
-#	apt install -y git net-tools mc docker.io lsyncd keepalived rsync socat nfs-common
-	apt install -y git net-tools haproxy mc lsyncd keepalived rsync socat nfs-common haproxy docker.io
+	apt install -y git net-tools haproxy mc lsyncd keepalived rsync socat nfs-common haproxy docker.io ntp ntpdate
 	cat <<EOF | sudo tee /etc/docker/daemon.json
 {
   "exec-opts": ["native.cgroupdriver=systemd"],
@@ -91,3 +90,6 @@ else
 fi
 
 /home/ubuntu/kubernetes/prepare_pup.sh ${1}
+
+systemctl stop puppet.service || true
+systemctl disable puppet.service || true
