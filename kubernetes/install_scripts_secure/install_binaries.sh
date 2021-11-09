@@ -17,18 +17,20 @@ install_kubernetes()
 {
 	local DST="kubernetes-server-linux-amd64.tar.gz"
 
-	[ -x /opt/kubernetes/server/bin/kubectl ] && return 0		# already exist
+	[ -x /usr/local/bin/kubectl ] && return 0		# already exist
+
+	[ ! -d /usr/local/bin ] && mkdir -p /usr/local/bin
 
 	TRAP="${TRAP} rm -rf ${DST};"
 	trap "${TRAP}" HUP INT ABRT BUS TERM EXIT
 
-	if [ ! -s /opt/kubernetes/server/bin/kubectl ]; then
-		if [ ! -s ${DST} ]; then
+	if [ ! -x /usr/local/bin/kubectl ]; then
+		if [ ! -r ${DST} ]; then
 			wget -O ${DST} https://storage.googleapis.com/kubernetes-release/release/${K8S_VER}/kubernetes-server-linux-amd64.tar.gz
 			ret=$?
 			[ ${ret} -ne 0 ] && err ${ret} "${W1_COLOR}${pgm} error: ${N1_COLOR}wget ${N2_COLOR}${DST}${N0_COLOR}"
 		fi
-		if [ -s "${DST}" ]; then
+		if [ -r "${DST}" ]; then
 			tar -xf ${DST} -C /opt/
 			[ ${ret} -ne 0 ] && err 1 "tar ${DST}"
 		else
@@ -37,16 +39,26 @@ install_kubernetes()
 	fi
 
 	for i in ${K8S_BIN_FILES}; do
-		if [ ! -s /opt/kubernetes/server/bin/${i} ]; then
-			echo "install_binaries: no such /opt/kubernetes/server/bin/${i}"
+		if [ ! -x /usr/local/bin/${i} ]; then
+			echo "install_binaries: no such /usr/local/bin/${i}"
 			exit 1
 		fi
-		ln -sf /opt/kubernetes/server/bin/${i} /usr/local/bin/${i}
+		mv /opt/kubernetes/server/bin/${i} /usr/local/bin/${i}
+		ret=$?
+		if [ ${ret} -ne 0 ]; then
+			echo "error: mv /opt/kubernetes/server/bin/${i} /usr/local/bin/${i}"
+			exit ${ret}
+		fi
+		chmod +x /usr/local/bin/${i}
 	done
 
-	mkdir -p /var/lib/{kube-controller-manager,kubelet,kube-proxy,kube-scheduler} \
-		/etc/{kubernetes,sysconfig} \
-		/etc/kubernetes/manifests
+	[ ! -d /var/lib/kubernetes ] && mkdir -p /var/lib/kubernetes/
+
+#	mkdir -p /var/lib/{kube-controller-manager,kubelet,kube-proxy,kube-scheduler} \
+#		/etc/{kubernetes,sysconfig} \
+#		/etc/kubernetes/manifests
+
+	echo "rm -rf  /opt/kubernetes"
 }
 
 install_etcd()
@@ -212,12 +224,13 @@ case "${INIT_ROLE}" in
 		install_runc
 		;;
 	gold)
-		install_etcd
-		install_containerd
-		install_flannel
-		install_cni_plugins
-		install_crictl
-		install_runc
+		date
+#		install_etcd
+#		install_containerd
+#		install_flannel
+#		install_cni_plugins
+#		install_crictl
+#		install_runc
 		;;
 esac
 

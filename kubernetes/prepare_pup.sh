@@ -1,12 +1,22 @@
 #!/bin/sh
 export PATH="/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/opt/puppetlabs/bin"
 
+# valid role: 'gold', 'master', 'worker'
+case "${1}" in
+	gold|master|worker)
+		;;
+	*)
+		echo "vald role: 'gold', 'master', 'worker'" 2>&1
+		exit 1
+		;;
+esac
+
 role="${1}"
 
 gold()
 {
 	# in gold
-	wget -O /tmp/puppet.deb https://apt.puppet.com/puppet6-release-$( lsb_release -sc ).deb
+	wget -O /tmp/puppet.deb https://apt.puppet.com/puppet7-release-$( lsb_release -sc ).deb
 	dpkg -i  /tmp/puppet.deb
 	apt update -y
 	apt install -y puppet-agent
