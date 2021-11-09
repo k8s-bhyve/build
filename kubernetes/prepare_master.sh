@@ -1,6 +1,16 @@
 #!/bin/sh
 export PATH="/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/opt/puppetlabs/bin"
 
+# valid role: 'gold', 'master', 'worker'
+case "${1}" in
+	gold|master|worker)
+		;;
+	*)
+		echo "vald role: 'gold', 'master', 'worker'" 2>&1
+		exit 1
+		;;
+esac
+
 INIT_ROLE="${1}"
 echo "INIT_ROLE=\"${INIT_ROLE}\"" >> /home/ubuntu/bootstrap.config
 
@@ -89,7 +99,7 @@ else
 	chmod 0400 /root/.ssh/id_ed25519
 fi
 
-/home/ubuntu/kubernetes/prepare_pup.sh ${1}
+#/home/ubuntu/kubernetes/prepare_pup.sh ${1}
 
 systemctl stop puppet.service || true
 systemctl disable puppet.service || true
