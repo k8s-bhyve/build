@@ -39,10 +39,12 @@ install_kubernetes()
 	fi
 
 	for i in ${K8S_BIN_FILES}; do
-		if [ ! -x /usr/local/bin/${i} ]; then
-			echo "install_binaries: no such /usr/local/bin/${i}"
-			exit 1
+		printf "check: /usr/local/bin/${i}"
+		if [  -x /usr/local/bin/${i} ]; then
+			echo "exist"
+			continue
 		fi
+		echo " not exist, mv /opt/kubernetes/server/bin/${i} /usr/local/bin/${i}"
 		mv /opt/kubernetes/server/bin/${i} /usr/local/bin/${i}
 		ret=$?
 		if [ ${ret} -ne 0 ]; then
@@ -58,14 +60,14 @@ install_kubernetes()
 #		/etc/{kubernetes,sysconfig} \
 #		/etc/kubernetes/manifests
 
-	echo "rm -rf  /opt/kubernetes"
+	rm -rf  /opt/kubernetes
 }
 
 install_etcd()
 {
 	local DST="etcd-linux-amd64.tar.gz"
 
-	[ -x /opt/etcd/bin/etcd ] && return 0		# already exist
+	[ -x /usr/local/bin/etcd ] && return 0		# already exist
 
 	if [ ! -s ${DST} ]; then
 		wget -O ${DST} https://github.com/coreos/etcd/releases/download/${ETCD_VER}/etcd-${ETCD_VER}-linux-amd64.tar.gz
@@ -85,9 +87,10 @@ install_etcd()
 		exit 1
 	fi
 
-	mkdir -p /opt/etcd/bin /opt/etcd/config /var/lib/etcd
-	mv ${tempdir}/etcd*/etcd* /opt/etcd/bin
+	[ ! -d /var/lib/etc ] && mkdir -p /var/lib/etcd
+	mv ${tempdir}/etcd*/etcd* /usr/local/bin/
 	chmod 0700 /var/lib/etcd
+	rm -rf ${tempdir}
 }
 
 install_flannel()
@@ -119,6 +122,8 @@ install_containerd()
 {
 	local DST="containerd.tar.gz"
 
+	apt remove -y containerd docker.io || true
+
 	[ -x /bin/containerd ] && return 0		# already exist
 
 	if [ ! -s ${DST} ]; then
@@ -140,7 +145,7 @@ install_containerd()
 
 	mv /tmp/containerd/bin/* /bin/
 	mkdir -p /etc/containerd
-
+	rm -rf /tmp/containerd
 }
 
 install_cni_plugins()
@@ -203,6 +208,9 @@ install_runc()
 }
 
 TRAP=
+if [ -z "${K8S_BIN_FILES}" ]; then
+	K8S_BIN_FILES="kube-apiserver kube-controller-manager kube-scheduler kubectl"
+fi
 install_kubernetes
 
 case "${INIT_ROLE}" in
@@ -224,13 +232,12 @@ case "${INIT_ROLE}" in
 		install_runc
 		;;
 	gold)
-		date
-#		install_etcd
-#		install_containerd
+		install_etcd
+		install_containerd	# for worker
 #		install_flannel
-#		install_cni_plugins
-#		install_crictl
-#		install_runc
+		install_cni_plugins
+		install_crictl
+		install_runc
 		;;
 esac
 

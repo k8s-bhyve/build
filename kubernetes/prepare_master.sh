@@ -99,7 +99,7 @@ else
 	chmod 0400 /root/.ssh/id_ed25519
 fi
 
-#/home/ubuntu/kubernetes/prepare_pup.sh ${1}
+/home/ubuntu/kubernetes/prepare_pup.sh ${1}
 
 systemctl stop puppet.service || true
 systemctl disable puppet.service || true
