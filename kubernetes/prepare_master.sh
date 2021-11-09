@@ -64,7 +64,7 @@ EOF
 	echo "upgrade"
 	apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 	echo "install"
-	apt install -y git net-tools haproxy mc lsyncd keepalived rsync socat nfs-common haproxy docker.io ntp ntpdate
+	apt install -y git net-tools haproxy mc lsyncd keepalived rsync socat nfs-common haproxy ntp ntpdate
 	cat <<EOF | sudo tee /etc/docker/daemon.json
 {
   "exec-opts": ["native.cgroupdriver=systemd"],
