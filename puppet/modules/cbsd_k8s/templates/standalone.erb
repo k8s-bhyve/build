@@ -62,8 +62,7 @@ FLANNEL_FETCH_URL="https://github.com/coreos/flannel/releases/download/${FLANNEL
 K8S_VER="v1.19.11"
 K8S_FETCH_URL="https://dl.k8s.io/${K8S_VER}/kubernetes-server-linux-amd64.tar.gz"
 
-#K8S_BIN_FILES="hyperkube kubeadm kube-apiserver kubelet kube-proxy kubectl"
-K8S_BIN_FILES="kubeadm kube-apiserver kubelet kube-proxy kubectl"
+K8S_BIN_FILES="kube-apiserver kube-controller-manager kube-scheduler kubectl"
 
 # Cert
 CA_COUNTRY="RU"
