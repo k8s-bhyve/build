@@ -3,15 +3,27 @@ export PATH="/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/opt/p
 
 # valid role: 'gold', 'master', 'worker'
 case "${1}" in
-	gold|master|worker)
+	gold|master|worker|supermaster)
 		;;
 	*)
-		echo "vald role: 'gold', 'master', 'worker'" 2>&1
+		echo "vald role: 'gold', 'master', 'supermaster', 'worker'" 2>&1
 		exit 1
 		;;
 esac
 
 role="${1}"
+
+sysctl -w net.ipv6.conf.all.disable_ipv6=1
+sysctl -w net.ipv6.conf.default.disable_ipv6=1
+sysctl -w net.ipv6.conf.lo.disable_ipv6=1
+
+echo "net.ipv6.conf.all.disable_ipv6=1" >> /etc/sysctl.conf
+echo "net.ipv6.conf.default.disable_ipv6=1" >> /etc/sysctl.conf
+echo "net.ipv6.conf.lo.disable_ipv6=1" >> /etc/sysctl.conf
+
+systemctl stop ntp || true
+ntpdate 1.ubuntu.pool.ntp.org
+systemctl start ntp || true
 
 gold()
 {
@@ -169,10 +181,10 @@ sed -i'' -Ees:%%MASTER_HOSTNAME%%:${MASTER_HOSTNAME}:g \
 	-Ees#%%API_SERVERS%%#${API_SERVERS}#g \
 	-Ees#%%APISERVER_HOST%%#${APISERVER_HOST}#g \
 	-Ees:%%VIP%%:${VIP}:g \
-	 /etc/puppetlabs/puppet/data/role/k8s-${real_role}.yaml
-
+	/etc/puppetlabs/puppet/data/role/k8s-${real_role}.yaml
 
 cd /opt/puppetlabs/puppet
+
 /opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
 /opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
 

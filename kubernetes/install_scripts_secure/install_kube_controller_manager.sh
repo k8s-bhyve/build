@@ -10,6 +10,8 @@ progdir="${0%/*}"       # Program directory
 
 [ "${ENABLE_DEBUG}" = "true" ] && set -x
 
+#    --master=127.0.0.1:8080 \\
+
 cat <<EOF | sudo tee /etc/systemd/system/kube-controller-manager.service
 [Unit]
 Description=Kubernetes Controller Manager
@@ -17,9 +19,9 @@ Documentation=https://github.com/kubernetes/kubernetes
 
 [Service]
 User=root
-ExecStart=/opt/kubernetes/server/bin/kube-controller-manager \\
+ExecStart=/usr/local/bin/kube-controller-manager \\
     --bind-address=0.0.0.0 \\
-    --allocate-node-cidrs=true \\
+#    --allocate-node-cidrs=true \\
     --attach-detach-reconcile-sync-period=1m0s \\
     --cluster-cidr=${FLANNEL_NET} \\
     --cluster-name=${CLUSTER} \\
@@ -30,7 +32,6 @@ ExecStart=/opt/kubernetes/server/bin/kube-controller-manager \\
     --service-cluster-ip-range=$CLUSTERIPRANGE \\
     --configure-cloud-routes=false \\
     --logtostderr=true \\
-    --master=127.0.0.1:8080 \\
     --root-ca-file=$CERTIFICATE_MOUNT_PATH/ca.pem \\
     --service-account-private-key-file=$CERTIFICATE_MOUNT_PATH/server-key.pem \\
     --kubeconfig=/export/kubecertificate/certs/kube-controller-manager.kubeconfig \\

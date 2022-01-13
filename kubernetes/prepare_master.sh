@@ -3,10 +3,10 @@ export PATH="/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/opt/p
 
 # valid role: 'gold', 'master', 'worker'
 case "${1}" in
-	gold|master|worker)
+	gold|master|worker|supermaster)
 		;;
 	*)
-		echo "vald role: 'gold', 'master', 'worker'" 2>&1
+		echo "vald role: 'gold', 'master', 'supermaster', 'worker'" 2>&1
 		exit 1
 		;;
 esac

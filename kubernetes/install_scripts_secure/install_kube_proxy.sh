@@ -49,7 +49,7 @@ Documentation=https://github.com/kubernetes/kubernetes
 After=network.target
 
 [Service]
-ExecStart=/opt/kubernetes/server/bin/kube-proxy \\
+ExecStart=/usr/local/bin/kube-proxy \\
   --hostname-override=$(hostname -s) \\
   --config=/var/lib/kube-proxy/kube-proxy-config.yaml
 Restart=on-failure

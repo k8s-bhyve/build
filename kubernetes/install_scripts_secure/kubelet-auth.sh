@@ -16,6 +16,18 @@ progdir="${0%/*}"       # Program directory
 maxwait=300
 api_stable=0
 
+if [ ! -r /export/kubecertificate/certs/admin.kubeconfig ]; then
+	echo "No such /export/kubecertificate/certs/admin.kubeconfig"
+	exit 1
+fi
+
+if [ ! -d /root/.kube ]; then
+	mkdir /root/.kube
+	chmod 0700 /root/.kube
+	ln -sf /export/kubecertificate/certs/admin.kubeconfig /root/.kube/config
+fi
+
+
 for i in $( seq 1 ${maxwait} ); do
 	${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: waiting for kubernetes-api [${i}/${maxwait}]...${N0_COLOR}"
 	timeout 5 kubectl get nodes > /dev/null 2>&1

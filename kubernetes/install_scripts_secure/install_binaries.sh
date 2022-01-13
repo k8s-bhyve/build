@@ -209,7 +209,7 @@ install_runc()
 
 TRAP=
 if [ -z "${K8S_BIN_FILES}" ]; then
-	K8S_BIN_FILES="kube-apiserver kube-controller-manager kube-scheduler kubectl"
+	K8S_BIN_FILES="kube-apiserver kube-controller-manager kube-scheduler kubectl kubelet kube-proxy"
 fi
 install_kubernetes
 
@@ -218,7 +218,7 @@ case "${INIT_ROLE}" in
 		install_etcd
 		if [ "${INSTALL_KUBELET_ON_MASTER}" = "true" ]; then
 			install_containerd
-			install_flannel
+#			install_flannel
 			install_cni_plugins
 			install_crictl
 			install_runc
@@ -226,7 +226,7 @@ case "${INIT_ROLE}" in
 		;;
 	worker)
 		install_containerd
-		install_flannel
+#		install_flannel
 		install_cni_plugins
 		install_crictl
 		install_runc

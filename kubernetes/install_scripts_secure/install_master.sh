@@ -115,7 +115,7 @@ ${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_kube_scheduler done
 
 #fi
 
-ln -sf /opt/kubernetes/server/bin/kubectl /usr/bin/kubectl
+#ln -sf /opt/kubernetes/server/bin/kubectl /usr/bin/kubectl
 
 # install on each master node
 

@@ -154,11 +154,14 @@ ${ECHO} "ETCD_CLUSTERS_CERTS=\"${ETCD_CLUSTERS_CERTS}\"" >> /home/ubuntu/bootstr
 maxwait=200
 
 . /home/ubuntu/bootstrap.config
+
 case "${INIT_ROLE}" in
 	supermaster)
+
 		real_role="master"
 		systemctl stop lsyncd.service || true
 		st_time=$( ${DATE_CMD} +%s )
+		echo "/export/kubernetes/certificates/install_ca.sh"
 		/export/kubernetes/certificates/install_ca.sh
 		end_time=$( ${DATE_CMD} +%s )
 		diff_time=$(( end_time - st_time ))
@@ -220,6 +223,7 @@ case "${INIT_ROLE}" in
 				[ "${i}" = "${MY_IP}" ] && continue
 				timeout 30 rsync -avz -e "ssh -oVerifyHostKeyDNS=yes -oStrictHostKeyChecking=no -oPasswordAuthentication=no" /export/kubecertificate/ ${i}:/export/kubecertificate/
 			done
+			# check for equal/same (single host)?
 			for i in ${k8s_worker_ips}; do
 				[ "${i}" = "${MY_IP}" ] && continue
 				timeout 30 rsync -avz -e "ssh -oVerifyHostKeyDNS=yes -oStrictHostKeyChecking=no -oPasswordAuthentication=no" /export/kubecertificate/ ${i}:/export/kubecertificate/
@@ -328,6 +332,7 @@ case "${real_role}" in
 			chmod 0400 /home/ubuntu/config
 			chown ubuntu:ubuntu /home/ubuntu/config
 		fi
+		[ -x /root/bin/rpc-executor.sh ] && /root/bin/rpc-executor.sh
 		;;
 	worker)
 		/export/kubernetes/install_scripts_secure/install_nodes.sh

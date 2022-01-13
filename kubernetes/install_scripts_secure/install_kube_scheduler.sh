@@ -10,10 +10,12 @@ progdir="${0%/*}"       # Program directory
 
 [ "${ENABLE_DEBUG}" = "true" ] && set -x
 
+[ ! -d /etc/kubernetes ] && mkdir -p /etc/kubernetes
+
 # config still alpha ?
 # https://github.com/kelseyhightower/kubernetes-the-hard-way/issues/427
 cat <<EOF | sudo tee /etc/kubernetes/kube-scheduler.yaml
-apiVersion: kubescheduler.config.k8s.io/v1beta1
+apiVersion: kubescheduler.config.k8s.io/v1beta2
 kind: KubeSchedulerConfiguration
 clientConnection:
   kubeconfig: "/export/kubecertificate/certs/kube-scheduler.kubeconfig"
@@ -29,7 +31,7 @@ Description=Kubernetes Scheduler
 Documentation=https://github.com/kubernetes/kubernetes
 
 [Service]
-ExecStart=/opt/kubernetes/server/bin/kube-scheduler \\
+ExecStart=/usr/local/bin/kube-scheduler \\
     --config=/etc/kubernetes/kube-scheduler.yaml \\
     --v=2
 Restart=on-failure

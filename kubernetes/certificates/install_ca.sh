@@ -33,6 +33,6 @@ openssl req -new -x509 -nodes -keyout ca-key.pem -out ca.pem -days ${CA_DAYS} -p
 
 ret=$?
 
-chattr +i ${ca.pem}
+chattr +i ca.pem
 
 exit ${ret}
