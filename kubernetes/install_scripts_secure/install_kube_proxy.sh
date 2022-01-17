@@ -37,7 +37,7 @@ apiVersion: kubeproxy.config.k8s.io/v1alpha1
 clientConnection:
   kubeconfig: "/export/kubecertificate/certs/kube-proxy.kubeconfig"
 mode: "iptables"
-clusterCIDR: "127.0.0.1/8"
+clusterCIDR: "${FLANNEL_NET}"
 EOF
 		;;
 esac

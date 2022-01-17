@@ -92,11 +92,37 @@ profile::file::entries:
         ret=$?
         [ ${ret} -eq 0 ] && rm -f ${f}
       done
+  /root/bin/pod-routes.sh:
+    ensure: "present"
+    path: "/root/bin/pod-routes.sh"
+    group: "root"
+    owner: "root"
+    mode: "0500"
+    content: |
+      #!/bin/sh
+      . /kubernetes/config
+      [ -z "${VIP}" ] && exit 0
+      MY_IPS=$( hostname -I )
+      MY_HOSTNAME=$( hostname )
+      cd /export/master
+      find /export/master -maxdepth 1 -type d | while read f; do
+        master_fqdn=$( basename ${f} )
+        echo ${master_fqdn}
+        [ "${master_fqdn}" = "${MY_HOSTNAME}" ] && continue
+        [ ! -r ${f}/route ] && continue
+        /bin/sh ${f}/route > /var/log/pod-routes.log 2>&1
+      done
 
 crontab::crontab_entries:
   '/root/bin/rpc-executor.sh':
     command: |
       nice -n 19 ionice -c 3 /usr/bin/flock -w1 -x /tmp/rpc_executer.lock /root/bin/rpc-executor.sh > /dev/null 2>&1
+    user: 'root'
+    minute: '*'
+    hour: '*'
+  '/root/bin/pod-routes.sh':
+    command: |
+      nice -n 19 ionice -c 3 /usr/bin/flock -w1 -x /tmp/pod_routes.lock /root/bin/pod-routes.sh > /dev/null 2>&1
     user: 'root'
     minute: '*'
     hour: '*'

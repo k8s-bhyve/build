@@ -113,10 +113,10 @@ case "${INIT_ROLE}" in
 		[ ! -d /export/rpc ] && mkdir -p /export/rpc
 		cat > /export/rpc/task.$$ << EOF
 #!/bin/sh
-kubectl get nodes ${MY_SHORT_HOSTNAME}
+/usr/local/bin/kubectl get nodes ${MY_SHORT_HOSTNAME}
 ret=\$?
 [ \${ret} -ne 0 ] && exit \${ret}
-kubectl label node ${MY_SHORT_HOSTNAME} node-role.kubernetes.io/${kubelet_role}=
+/usr/local/bin/kubectl label node ${MY_SHORT_HOSTNAME} node-role.kubernetes.io/${kubelet_role}=
 ret=\$?
 exit \${ret}
 EOF
