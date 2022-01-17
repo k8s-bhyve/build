@@ -89,7 +89,7 @@ fi
 end_time=$( ${DATE_CMD} +%s )
 diff_time=$(( end_time - st_time ))
 diff_time=$( displaytime ${diff_time} )
-${ECHO} "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: waiting members done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
+${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: waiting members done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
 
 SERVERS=
 for name in ${k8s_master_list}; do
@@ -100,17 +100,20 @@ for name in ${k8s_master_list}; do
 		SERVERS="${SERVERS},${ip}:${name}"
 	fi
 done
-${ECHO} "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: bootstrap config: SERVERS=\"${SERVERS}\"${N0_COLOR}"
+${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: bootstrap config: SERVERS=\"${SERVERS}\"${N0_COLOR}"
 echo "SERVERS=\"${SERVERS}\"" >> /home/ubuntu/bootstrap.config
 WORKERS=
-for name in ${k8s_master_list}; do
-	ip=$( cat /export/master/${name}/ip | awk '{printf $1}' )
-	if [ -z "${WORKERS}" ]; then
-		WORKERS="${ip}:${name}"
-	else
-		WORKERS="${WORKERS},${ip}:${name}"
-	fi
-done
+if [ "${INSTALL_KUBELET_ON_MASTER}" = "true" ]; then
+	for name in ${k8s_master_list}; do
+		ip=$( cat /export/master/${name}/ip | awk '{printf $1}' )
+		if [ -z "${WORKERS}" ]; then
+			WORKERS="${ip}:${name}"
+		else
+			WORKERS="${WORKERS},${ip}:${name}"
+		fi
+	done
+	# check INSTALL_KUBELET_ON_MASTER
+fi
 
 for name in ${k8s_worker_list}; do
 	ip=$( cat /export/worker/${name}/ip | awk '{printf $1}' )
@@ -120,17 +123,24 @@ for name in ${k8s_worker_list}; do
 		WORKERS="${WORKERS},${ip}:${name}"
 	fi
 done
-${ECHO} "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: bootstrap config: WORKERS=\"${WORKERS}\"${N0_COLOR}"
+
+# check INSTALL_KUBELET_ON_MASTER
+${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: bootstrap config: WORKERS=\"${WORKERS}\"${N0_COLOR}"
 echo "WORKERS=\"${WORKERS}\"" >> /home/ubuntu/bootstrap.config
+
+
 NODES=
-for name in ${k8s_master_list}; do
-	ip=$( cat /export/master/${name}/ip | awk '{printf $1}' )
-	if [ -z "${NODES}" ]; then
-		NODES="${ip}:${name}"
-	else
-		NODES="${NODES},${ip}:${name}"
-	fi
-done
+if [ "${INSTALL_KUBELET_ON_MASTER}" = "true" ]; then
+	for name in ${k8s_master_list}; do
+		ip=$( cat /export/master/${name}/ip | awk '{printf $1}' )
+		if [ -z "${NODES}" ]; then
+			NODES="${ip}:${name}"
+		else
+			NODES="${NODES},${ip}:${name}"
+		fi
+	done
+fi
+
 k8s_worker_ips=
 for name in ${k8s_worker_list}; do
 	ip=$( cat /export/worker/${name}/ip | awk '{printf $1}' )
@@ -145,7 +155,8 @@ for name in ${k8s_worker_list}; do
 		NODES="${NODES},${ip}:${name}"
 	fi
 done
-${ECHO} "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: bootstrap config: NODES=\"${NODES}\"${N0_COLOR}"
+
+${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: bootstrap config: NODES=\"${NODES}\"${N0_COLOR}"
 ${ECHO} "NODES=\"${NODES}\"" >> /home/ubuntu/bootstrap.config
 ETCD_CLUSTERS="${SERVERS}"
 ${ECHO} "ETCD_CLUSTERS=\"${ETCD_CLUSTERS}\"" >> /home/ubuntu/bootstrap.config
@@ -294,7 +305,6 @@ case "${INIT_ROLE}" in
 	worker)
 		real_role="${INIT_ROLE}"
 		[ ! -d "/export/${real_role}/${MY_HOSTNAME}" ] && mkdir -p /export/${real_role}/${MY_HOSTNAME}
-		[ "${INIT_ROLE}" = "master" ] && date > /export/${real_role}/${MY_HOSTNAME}/etcd.init
 		# waiting for supermaster first
 		max=0
 		while [ ${max} -lt ${maxwait} ]; do
@@ -338,7 +348,9 @@ case "${real_role}" in
 		/export/kubernetes/install_scripts_secure/install_nodes.sh
 		;;
 esac
-iptables -t nat -A PREROUTING -p tcp --dport 30000 -j DNAT --to-destination 10.0.0.2:30000 # http
-iptables -t nat -A PREROUTING -p tcp --dport 32000 -j DNAT --to-destination 10.0.0.2:32000 # nginx ui
-iptables -t nat -A PREROUTING -p tcp --dport 31000 -j DNAT --to-destination 10.0.0.2:31000 # https
+
+#iptables -t nat -A PREROUTING -p tcp --dport 30000 -j DNAT --to-destination 10.0.0.2:30000 # http
+#iptables -t nat -A PREROUTING -p tcp --dport 32000 -j DNAT --to-destination 10.0.0.2:32000 # nginx ui
+#iptables -t nat -A PREROUTING -p tcp --dport 31000 -j DNAT --to-destination 10.0.0.2:31000 # https
+
 /export/kubernetes/set_hosts.sh

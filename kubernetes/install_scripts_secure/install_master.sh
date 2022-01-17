@@ -100,8 +100,8 @@ ${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_kube_scheduler done
 
 /home/ubuntu/kubernetes/install_scripts_secure/kubelet-auth.sh || true
 
-#if [[ $INSTALL_KUBELET_ON_MASTER == 'true' ]]
-#then
+if [ "${INSTALL_KUBELET_ON_MASTER}" = "true" ]; then
+
 	st_time=$( ${DATE_CMD} +%s )
 	/bin/bash $INSTALL_PATH/install_nodes.sh
 	if [  $? -ne 0 ]; then
@@ -113,9 +113,7 @@ ${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_kube_scheduler done
 	diff_time=$( displaytime ${diff_time} )
 	${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_nodes done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
 
-#fi
-
-#ln -sf /opt/kubernetes/server/bin/kubectl /usr/bin/kubectl
+fi
 
 # install on each master node
 
@@ -277,10 +275,22 @@ cat > /export/rpc/task.$$ << EOF
 /usr/local/bin/kubectl get nodes ${MY_SHORT_HOSTNAME}
 ret=\$?
 [ \${ret} -ne 0 ] && exit \${ret}
-/usr/local/bin/kubectl label node ${MY_SHORT_HOSTNAME} node-role.kubernetes.io/master=
+/usr/local/bin/kubectl label node ${MY_SHORT_HOSTNAME} node-role.kubernetes.io/master= --overwrite
 ret=\$?
 exit \${ret}
 EOF
+
+if [ "${INSTALL_KUBELET_ON_MASTER}" = "true" ]; then
+cat > /export/rpc/task-w.$$ << EOF
+#!/bin/sh
+/usr/local/bin/kubectl get nodes ${MY_SHORT_HOSTNAME}
+ret=\$?
+[ \${ret} -ne 0 ] && exit \${ret}
+/usr/local/bin/kubectl label node ${MY_SHORT_HOSTNAME} node-role.kubernetes.io/worker= --overwrite
+ret=\$?
+exit \${ret}
+EOF
+fi
 
 if [ "${INIT_ROLE}" = "supermaster" ]; then
 	systemctl restart keepalived || true

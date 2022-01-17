@@ -20,8 +20,9 @@ esac
 case "${INIT_ROLE}" in
 	worker)
 		timeout 30 rsync -avz -e "ssh -oVerifyHostKeyDNS=yes -oStrictHostKeyChecking=no -oPasswordAuthentication=no" ${VIP}:/export/kubecertificate/ /export/kubecertificate/
-		timeout 30 rsync -avz -e "ssh -oVerifyHostKeyDNS=yes -oStrictHostKeyChecking=no -oPasswordAuthentication=no" ${VIP}:/export/kubeconfig /export/kubeconfig
-
+		MYFQDN=$( hostname )
+		# check for existance
+		cp -a /export/kubecertificate/certs/${MYFQDN}.kubeconfig /export/kubeconfig
 		# дожидаемся /export/kubecertificate/certs/admin.kubeconfig
 		max=0
 		while [ ${max} -lt 300 ]; do
@@ -116,7 +117,7 @@ case "${INIT_ROLE}" in
 /usr/local/bin/kubectl get nodes ${MY_SHORT_HOSTNAME}
 ret=\$?
 [ \${ret} -ne 0 ] && exit \${ret}
-/usr/local/bin/kubectl label node ${MY_SHORT_HOSTNAME} node-role.kubernetes.io/${kubelet_role}=
+/usr/local/bin/kubectl label node ${MY_SHORT_HOSTNAME} node-role.kubernetes.io/${kubelet_role}= --overwrite
 ret=\$?
 exit \${ret}
 EOF

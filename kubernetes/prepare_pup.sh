@@ -202,6 +202,10 @@ cat /export/${real_role}/${MY_HOSTNAME}/ip
 # waiting for masters
 maxwait=200
 max=0
+
+. /kubernetes/tools.subr
+. /kubernetes/time.subr
+
 st_time=$( ${DATE_CMD} +%s )
 while [ ${max} -lt ${maxwait} ]; do
 	_ret=0

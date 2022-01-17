@@ -105,6 +105,22 @@ for user in admin kube-proxy kubelet kube-controller-manager kube-scheduler ${MA
 	echo " :: ${user} done"
 done
 
+# kubernetesapi req for /export/kubecertificate/certs//master1.k8s-bhyve.io-etcd-client.pem
+if [ "${INSTALL_KUBELET_ON_MASTER}" = "false" ]; then
+	#Install worker nodes
+	IFS=','
+	for worker in $SERVERS; do
+		oifs=$IFS
+		IFS=':'
+		read -r ip node <<< "$worker"
+		echo "The node $node"
+		$INSTALL_PATH/../certificates/install_node.sh -i $ip -h $node
+		$INSTALL_PATH/../certificates/install_peercert.sh -i $ip -h $node -t client -f etcd
+		IFS=$oifs
+	done
+	unset IFS
+fi
+
 #Install worker nodes
 IFS=','
 for worker in $WORKERS; do

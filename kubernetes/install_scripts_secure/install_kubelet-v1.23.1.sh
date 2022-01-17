@@ -27,7 +27,7 @@ counter=0
 MYID=
 OIFS="${IFS}"
 IFS=','
-for worker in ${SERVERS}; do
+for worker in ${WORKERS}; do
 	oifs=${IFS}
 	IFS=':'
 	read -r ip node <<< "${worker}"
