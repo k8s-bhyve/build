@@ -35,17 +35,20 @@ fi
 
 tmp_ip=$( hostname -I )
 ip=
+id=0
+
 # prune docker net
 for i in ${tmp_ip}; do
-	a=$( echo ${i} |grep ^172 )
-	if [ $? -ne 0 ]; then
+	if [ ${id} -lt 3 ]; then
 		if [ -z "${ip}" ]; then
 			ip="${i}"
 		else
 			ip="${ip} ${i}"
 		fi
 	fi
+	id=$(( id + 1 ))
 done
+
 CPUName=`cat /proc/cpuinfo | grep 'model name' | head -n 1 | awk '{print ($4, $5, $6, $8, $9, $10)}'`
 NCores=$( cat /proc/cpuinfo | grep 'model name' | wc -l )
 freemem_bytes=$( free -b | head -n2 | tail -n1 | awk {'print $4'} )

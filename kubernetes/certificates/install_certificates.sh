@@ -72,6 +72,8 @@ chattr +i server.pem
 #Verify a Private Key Matches a Certificate
 openssl x509 -noout -text -in server.pem
 
+
+# PARALLEL ?
 echo "gen: admin kube-proxy kubelet kube-controller-manager kube-scheduler ${MASTER_HOSTNAME}"
 for user in admin kube-proxy kubelet kube-controller-manager kube-scheduler ${MASTER_HOSTNAME}; do
 	if [ ! -r ${user}-key.pem ]; then
@@ -105,6 +107,7 @@ for user in admin kube-proxy kubelet kube-controller-manager kube-scheduler ${MA
 	echo " :: ${user} done"
 done
 
+# PARALLEL ?
 # kubernetesapi req for /export/kubecertificate/certs//master1.k8s-bhyve.io-etcd-client.pem
 if [ "${INSTALL_KUBELET_ON_MASTER}" = "false" ]; then
 	#Install worker nodes
@@ -121,6 +124,7 @@ if [ "${INSTALL_KUBELET_ON_MASTER}" = "false" ]; then
 	unset IFS
 fi
 
+# PARALLEL ?
 #Install worker nodes
 IFS=','
 for worker in $WORKERS; do
@@ -138,6 +142,7 @@ unset IFS
 # --basic-auth-file=/export/kubecertificate/certs/basic_auth.csv
 #echo "admin,admin,admin" > basic_auth.csv
 
+# PARALLEL ?
 #Install worker nodes
 IFS=','
 for worker in $ETCD_CLUSTERS_CERTS; do
@@ -150,6 +155,7 @@ for worker in $ETCD_CLUSTERS_CERTS; do
 done
 unset IFS
 
+# PARALLEL ?
 #Install worker nodes
 IFS=','
 for worker in $NODES; do

@@ -1,0 +1,60 @@
+{
+  "name": "puppet-chrony",
+  "version": "2.1.0",
+  "author": "Vox Pupuli",
+  "summary": "Manage chrony daemon on Linux",
+  "license": "Apache-2.0",
+  "source": "git://github.com/voxpupuli/puppet-chrony.git",
+  "project_page": "https://github.com/voxpupuli/puppet-chrony",
+  "issues_url": "https://github.com/voxpupuli/puppet-chrony/issues",
+  "dependencies": [
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 4.25.1 < 9.0.0"
+    }
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "7",
+        "8"
+      ]
+    },
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease": [
+        "9",
+        "10"
+      ]
+    },
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "18.04",
+        "20.04"
+      ]
+    },
+    {
+      "operatingsystem": "SLES"
+    },
+    {
+      "operatingsystem": "Archlinux"
+    },
+    {
+      "operatingsystem": "Gentoo"
+    }
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": ">= 6.1.0 < 8.0.0"
+    }
+  ]
+}

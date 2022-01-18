@@ -13,6 +13,7 @@ progdir="${0%/*}"       # Program directory
 [ ! -d ${CERTIFICATE}/certs ] && err 1 "no such  $CERTIFICATE/certs"
 cd $CERTIFICATE/certs
 
+# PARALLEL ?
 #Install worker kubelet
 IFS=','
 for worker in $WORKERS; do
@@ -46,6 +47,7 @@ for worker in $WORKERS; do
 	IFS=$oifs
 done
 
+# PARALLEL ?
 if [ ! -r kube-proxy.kubeconfig ]; then
 
 	kubectl config set-cluster ${CLUSTER} \
@@ -68,6 +70,7 @@ if [ ! -r kube-proxy.kubeconfig ]; then
 	kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
 fi
 
+# PARALLEL ?
 if [ ! -r kube-controller-manager.kubeconfig ]; then
 
 	kubectl config set-cluster ${CLUSTER} \
@@ -90,6 +93,7 @@ if [ ! -r kube-controller-manager.kubeconfig ]; then
 	kubectl config use-context default --kubeconfig=kube-controller-manager.kubeconfig
 fi
 
+# PARALLEL ?
 if [ ! -r kube-scheduler.kubeconfig ]; then
 	kubectl config set-cluster ${CLUSTER} \
 	--certificate-authority=ca.pem \
@@ -111,6 +115,7 @@ if [ ! -r kube-scheduler.kubeconfig ]; then
 	kubectl config use-context default --kubeconfig=kube-scheduler.kubeconfig
 fi
 
+# PARALLEL ?
 if [ ! -r admin.kubeconfig ]; then
 	kubectl config set-cluster ${CLUSTER} \
 	--certificate-authority=ca.pem \

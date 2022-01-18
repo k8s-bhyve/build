@@ -4,6 +4,7 @@ _TOOLS_SUBR=1
 
 MY_APP="CBSD k8s"
 ECHO="echo -e"
+#ECHO="echo"
 DATE_CMD="date"
 
 # fatal error. Print message then quit with exitval

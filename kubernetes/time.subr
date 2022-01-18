@@ -17,5 +17,25 @@ displaytime()
 	printf '%d seconds\n' $S
 }
 
+time_stats()
+{
+	end_time=$( ${DATE_CMD} +%s )
+	diff_time=$(( end_time - st_time ))
+
+	if [ ${diff_time} -gt 5 ]; then
+		DIFF_TIME_COLOR="${W1_COLOR}"
+	else
+		DIFF_TIME_COLOR="${H1_COLOR}"
+	fi
+
+	diff_time=$( displaytime ${diff_time} )
+
+	abs_diff_time=$(( end_time - FULL_ST_TIME ))
+	abs_diff_time=$( displaytime ${abs_diff_time} )
+
+
+	${ECHO} "${*} ${N2_COLOR}in ${DIFF_TIME_COLOR}${diff_time}${N2_COLOR} ( absolute: ${W1_COLOR}${abs_diff_time} ${N2_COLOR})${N0_COLOR}"
+}
+
 ###
 fi

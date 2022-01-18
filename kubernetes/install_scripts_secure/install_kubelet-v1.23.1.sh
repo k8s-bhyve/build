@@ -38,7 +38,7 @@ IFS="${OIFS}"
 
 if [ -n "${MYID}" ]; then
 	MYID=$(( MYID + 1 ))
-	echo "${N0_COLOR}install_kubelet: my host ID is: ${N2_COLOR}${MYID}${N0_COLOR}"
+	${ECHO} "${N0_COLOR}install_kubelet: my host ID is: ${N2_COLOR}${MYID}${N0_COLOR}"
 else
 	err 1 "${W1_COLOR}${pgm} error: ${N1_COLOR}unable to determine MYID from server list: ${N2_COLOR}${SERVERS}${N0_COLOR}"
 fi

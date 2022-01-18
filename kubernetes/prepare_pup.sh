@@ -21,9 +21,10 @@ echo "net.ipv6.conf.all.disable_ipv6=1" >> /etc/sysctl.conf
 echo "net.ipv6.conf.default.disable_ipv6=1" >> /etc/sysctl.conf
 echo "net.ipv6.conf.lo.disable_ipv6=1" >> /etc/sysctl.conf
 
-systemctl stop ntp || true
-ntpdate 1.ubuntu.pool.ntp.org
-systemctl start ntp || true
+. /home/ubuntu/bootstrap.config
+. /kubernetes/tools.subr
+. /kubernetes/time.subr
+. /kubernetes/ansiicolor.subr
 
 gold()
 {
@@ -113,6 +114,7 @@ EOF
 
 addnode()
 {
+
 	cd /opt/puppetlabs/puppet
 	/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
 	/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
@@ -121,8 +123,6 @@ addnode()
 ### MAIN
 # get original FQDN
 # hardcode ?
-. /home/ubuntu/bootstrap.config
-
 MY_HOSTNAME=$( /opt/puppetlabs/bin/facter fqdn )
 echo "My hostname: [${MY_HOSTNAME}]"
 
@@ -158,6 +158,15 @@ for i in ${ALL_IPS}; do
 	sed -Ees:%%IP%%:${i}:g /etc/puppetlabs/puppet/tpl/lsync_part_body.yaml >> /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml
 done
 
+# configure chrony
+echo >> /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml
+echo "chrony::servers:" >> /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml
+echo "  - ${i}" >> /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml
+
+for i in ${NTP_SERVERS}; do
+	echo "  - ${i}" >> /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml
+done
+
 case "${role}" in
 	master|supermaster)
 		real_role="master"
@@ -185,8 +194,12 @@ sed -i'' -Ees:%%MASTER_HOSTNAME%%:${MASTER_HOSTNAME}:g \
 
 cd /opt/puppetlabs/puppet
 
-/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
-/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
+st_time=$( ${DATE_CMD} +%s )
+# daemon? not work correctly: need for inv
+/usr/bin/tmux -2 -u new-session -d "/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp > /tmp/go 2>&1; /opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp > /tmp/go 2>&1; "
+#/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
+#/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
+time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: initial puppet apply"
 
 echo "my role: ${real_role}, export /export/${real_role}/${MY_HOSTNAME}"
 if [ ! -d /export/${real_role}/${MY_HOSTNAME} ]; then
@@ -198,13 +211,9 @@ echo "printf \"${MY_IP}\" > /export/${real_role}/${MY_HOSTNAME}/ip"
 
 cat /export/${real_role}/${MY_HOSTNAME}/ip
 
-
 # waiting for masters
 maxwait=200
 max=0
-
-. /kubernetes/tools.subr
-. /kubernetes/time.subr
 
 st_time=$( ${DATE_CMD} +%s )
 while [ ${max} -lt ${maxwait} ]; do
@@ -226,9 +235,6 @@ while [ ${max} -lt ${maxwait} ]; do
 	[ ${_ret} -eq 0 ] && break
 	echo "${wait_msg}"
 done
-end_time=$( ${DATE_CMD} +%s )
-diff_time=$(( end_time - st_time ))
-diff_time=$( displaytime ${diff_time} )
-${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: export role done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
+time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: export role done"
 
 bash /home/ubuntu/kubernetes/kube-up.sh

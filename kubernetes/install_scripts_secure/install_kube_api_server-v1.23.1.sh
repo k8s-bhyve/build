@@ -95,6 +95,8 @@ EOF
 #--portal-net=$FLANNEL_NETWORK \
 systemctl daemon-reload || true
 systemctl enable kube-apiserver
-systemctl restart kube-apiserver || true
+
+#systemctl restart kube-apiserver || true
+tmux -2 -u new-session -d "systemctl restart kube-apiserver > /tmp/restart-api.log 2>&1"
 
 exit 0

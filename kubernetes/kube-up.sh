@@ -3,6 +3,7 @@
 . /kubernetes/tools.subr
 . /kubernetes/time.subr
 . /kubernetes/ansiicolor.subr
+
 cat > /root/.bashrc <<EOF
 alias kcd='kubectl config set-context --current --namespace='
 EOF
@@ -42,10 +43,7 @@ while [ ${max} -lt ${maxwait} ]; do
 done
 [ -r /etc/facter/facts.d/k8s_master_ips ] && eval $( /etc/facter/facts.d/k8s_master_ips )
 [ "${INIT_MASTERS_NUM}" != "${k8s_master_num}" ] && err 1 "${W1_COLOR}${MY_APP} ${MY_SHORT_HOSTNAME} error: ${N1_COLOR} waiting for ${INIT_MASTERS_NUM} master node failed, current: ${k8s_master_num} ${N2_COLOR}[${max}/${maxwait}]${N0_COLOR}"
-end_time=$( ${DATE_CMD} +%s )
-diff_time=$(( end_time - st_time ))
-diff_time=$( displaytime ${diff_time} )
-${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: waiting master members done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
+time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: waiting master members done"
 
 wait_for_workers=1
 
@@ -62,11 +60,12 @@ elif [ "${INIT_NODES_NUM}" = "1" ]; then
 	fi
 fi
 
+st_time=$( ${DATE_CMD} +%s )
+
 if [ ${wait_for_workers} -eq 1 ]; then
 	# waiting for workers
 	maxwait=200
 	max=0
-	st_time=$( ${DATE_CMD} +%s )
 	while [ ${max} -lt ${maxwait} ]; do
 		wait_msg=
 		[ ! -r /etc/facter/facts.d/k8s_worker_ips ] && wait_msg="${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: no k8s_worker_ips facts, waiting ${N2_COLOR}${max}/${maxwait}..."
@@ -86,10 +85,7 @@ fi
 [ -r /etc/facter/facts.d/k8s_worker_ips ] && eval $( /etc/facter/facts.d/k8s_worker_ips )
 [ ${wait_for_workers} -eq 1 -a "${INIT_NODES_NUM}" != "${k8s_worker_num}" ] && err 1 "${W1_COLOR}${MY_APP} ${MY_SHORT_HOSTNAME} error: ${N1_COLOR}waiting for ${INIT_NODES_NUM} worker node failed, current: ${k8s_worker_num} ${N2_COLOR}[${max}/${maxwait}]${N0_COLOR}"
 
-end_time=$( ${DATE_CMD} +%s )
-diff_time=$(( end_time - st_time ))
-diff_time=$( displaytime ${diff_time} )
-${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: waiting members done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
+time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: waiting members done"
 
 SERVERS=
 for name in ${k8s_master_list}; do
@@ -127,7 +123,6 @@ done
 # check INSTALL_KUBELET_ON_MASTER
 ${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: bootstrap config: WORKERS=\"${WORKERS}\"${N0_COLOR}"
 echo "WORKERS=\"${WORKERS}\"" >> /home/ubuntu/bootstrap.config
-
 
 NODES=
 if [ "${INSTALL_KUBELET_ON_MASTER}" = "true" ]; then
@@ -174,32 +169,20 @@ case "${INIT_ROLE}" in
 		st_time=$( ${DATE_CMD} +%s )
 		echo "/export/kubernetes/certificates/install_ca.sh"
 		/export/kubernetes/certificates/install_ca.sh
-		end_time=$( ${DATE_CMD} +%s )
-		diff_time=$(( end_time - st_time ))
-		diff_time=$( displaytime ${diff_time} )
-		${ECHO} "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: install_ca done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
+		time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: install_ca done"
 
 		st_time=$( ${DATE_CMD} +%s )
 		/export/kubernetes/certificates/install_certificates.sh
 		#/export/kubernetes/certificates/install_master.sh
-		end_time=$( ${DATE_CMD} +%s )
-		diff_time=$(( end_time - st_time ))
-		diff_time=$( displaytime ${diff_time} )
-		${ECHO} "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: install_certificates done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
+		time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: install_certificates done"
 
 		st_time=$( ${DATE_CMD} +%s )
 		/export/kubernetes/certificates/install_kubeconfig.sh
-		end_time=$( ${DATE_CMD} +%s )
-		diff_time=$(( end_time - st_time ))
-		diff_time=$( displaytime ${diff_time} )
-		${ECHO} "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: install_kubeconfig done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
+		time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: install_kubeconfig done"
 
 		st_time=$( ${DATE_CMD} +%s )
 		/export/kubernetes/certificates/data-encryption-keys.sh
-		end_time=$( ${DATE_CMD} +%s )
-		diff_time=$(( end_time - st_time ))
-		diff_time=$( displaytime ${diff_time} )
-		${ECHO} "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: data-encryption-keys done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
+		time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: data-encryption-keys done"
 
 		multi_node=1
 		if [ "${k8s_master_num}" = "1" ]; then
@@ -240,10 +223,7 @@ case "${INIT_ROLE}" in
 				timeout 30 rsync -avz -e "ssh -oVerifyHostKeyDNS=yes -oStrictHostKeyChecking=no -oPasswordAuthentication=no" /export/kubecertificate/ ${i}:/export/kubecertificate/
 			done
 			systemctl start lsyncd.service
-			end_time=$( ${DATE_CMD} +%s )
-			diff_time=$(( end_time - st_time ))
-			diff_time=$( displaytime ${diff_time} )
-			${ECHO} "${N1_COLOR}${MY_APP} rsync for certificate to master_ips done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
+			time_stats "${N1_COLOR}${MY_APP} rsync for certificate to master_ips done"
 
 			# дожидаемся, что все мастера дошли до этапа etcd init
 			st_time=$( ${DATE_CMD} +%s )
@@ -260,10 +240,7 @@ case "${INIT_ROLE}" in
 				done
 			done
 
-			end_time=$( ${DATE_CMD} +%s )
-			diff_time=$(( end_time - st_time ))
-			diff_time=$( displaytime ${diff_time} )
-			${ECHO} "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: waiting for etcd.init ready for masters done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
+			time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: waiting for etcd.init ready for masters done"
 
 			st_time=$( ${DATE_CMD} +%s )
 			for i in ${k8s_master_list}; do
@@ -273,20 +250,18 @@ case "${INIT_ROLE}" in
 					exit 1
 				fi
 			done
-			end_time=$( ${DATE_CMD} +%s )
-			diff_time=$(( end_time - st_time ))
-			diff_time=$( displaytime ${diff_time} )
-			${ECHO} "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: waiting for etcd ready for masters done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
+			time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: waiting for etcd ready for masters done"
 		fi
 		;;
 	master)
 		# initial bootstrap on supermaster node
-		systemctl stop keepalived || true
+		tmux -2 -u new-session -d "systemctl stop keepalived > /tmp/keepalived_stop.log 2>&1"
 		real_role="${INIT_ROLE}"
 		[ ! -d "/export/${real_role}/${MY_HOSTNAME}" ] && mkdir -p /export/${real_role}/${MY_HOSTNAME}
 		date > /export/${real_role}/${MY_HOSTNAME}/etcd.init
 		# waiting for supermaster first
 		max=0
+		st_time=$( ${DATE_CMD} +%s )
 		while [ ${max} -lt ${maxwait} ]; do
 			_reqfile="/export/etcd.init /export/kubecertificate/certs/server-key.pem /export/kubecertificate/certs/ca.pem /export/kubecertificate/certs/$( hostname ).pem /export/kubecertificate/certs/$( hostname )-etcd-client.pem /export/kubecertificate/certs/$( hostname )-etcd.pem"
 			ready=1
@@ -301,12 +276,14 @@ case "${INIT_ROLE}" in
 			fi
 			max=$(( max + 1 ))
 		done
+		time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: waiting for masters certificates done"
 		;;
 	worker)
 		real_role="${INIT_ROLE}"
 		[ ! -d "/export/${real_role}/${MY_HOSTNAME}" ] && mkdir -p /export/${real_role}/${MY_HOSTNAME}
 		# waiting for supermaster first
 		max=0
+		st_time=$( ${DATE_CMD} +%s )
 		while [ ${max} -lt ${maxwait} ]; do
 			_reqfile="/export/etcd.init /export/kubecertificate/certs/ca.pem /export/kubecertificate/certs/$( hostname ).pem /export/kubecertificate/certs/$( hostname )-etcd-client.pem"
 			ready=1
@@ -321,6 +298,7 @@ case "${INIT_ROLE}" in
 			fi
 			max=$(( max + 1 ))
 		done
+		time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: waiting for masters certificates done"
 		;;
 esac
 
