@@ -32,6 +32,7 @@ defaults
         timeout server 500000
         frontend default_frontend
         bind *:443
+        bind [::]:443
         default_backend master-cluster
 backend master-cluster
 `#Install master nodes
