@@ -11,6 +11,7 @@ case "${1}" in
 		;;
 esac
 
+MY_SHORT_HOSTNAME=$( hostname -s )
 INIT_ROLE="${1}"
 echo "INIT_ROLE=\"${INIT_ROLE}\"" >> /home/ubuntu/bootstrap.config
 
@@ -120,7 +121,7 @@ else
 	mv /home/ubuntu/authorized_keys /root/.ssh/
 	chown root:root /root/.ssh/id_ed25519 /root/.ssh/authorized_keys
 	chmod 0400 /root/.ssh/id_ed25519
-	time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: generate ssh pair"
+	time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: generate ssh pair"
 fi
 
 /home/ubuntu/kubernetes/prepare_pup.sh ${1}

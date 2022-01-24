@@ -14,15 +14,15 @@ then
 	[[ "TRACE" ]] && set -x
 fi
 
+st_time=$( ${DATE_CMD} +%s )
 if [ "${DEVELOP}" = "1" ]; then
-	st_time=$( ${DATE_CMD} +%s )
 	/bin/bash $INSTALL_PATH/install_binaries.sh
 	if [  $? -ne 0 ]
 	then
 		exit 1
 	fi
-	time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_binaries done"
 fi
+time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_binaries done"
 
 #st_time=$( ${DATE_CMD} +%s )
 #/bin/bash $INSTALL_PATH/install_kubeconfig.sh
@@ -146,13 +146,13 @@ if [ "${INIT_ROLE}" = "supermaster" ]; then
 	if [ $? -ne 0 ]; then
 		echo "kubectl create -f $INSTALL_PATH/admin.yaml"
 	fi
-	time_stats "${N1_COLOR}${MY_APP}: kubectl admin.yaml done"
+	time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: kubectl admin.yaml done"
 
 	if [[ $INSTALL_DASHBOARD == 'true' ]]
 	then
 		st_time=$( ${DATE_CMD} +%s )
 		/bin/bash $INSTALL_PATH/install_dashboard.sh
-		time_stats "${N1_COLOR}${MY_APP}: install_dashboard done"
+		time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_dashboard done"
 	fi
 
 
@@ -160,32 +160,32 @@ if [ "${INIT_ROLE}" = "supermaster" ]; then
 	then
 		st_time=$( ${DATE_CMD} +%s )
 		/bin/bash $INSTALL_PATH/install_skydns.sh
-		time_stats "${N1_COLOR}${MY_APP}: install_skydns done"
+		time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_skydns done"
 	fi
 
 	if [[ $INSTALL_COREDNS == 'true' ]]
 	then
 		st_time=$( ${DATE_CMD} +%s )
 		/bin/bash $INSTALL_PATH/install_coredns.sh
-		time_stats "${N1_COLOR}${MY_APP}: install_coredns done"
+		time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_coredns done"
 	fi
 
 	if [[ $INSTALL_INGRESS == 'true' ]]
 	then
 		st_time=$( ${DATE_CMD} +%s )
 		/bin/bash $INSTALL_PATH/install_ingress.sh
-		time_stats "${N1_COLOR}${MY_APP}: install_ingress done"
+		time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: install_ingress done"
 	fi
 
 	if [[ $INSTALL_HEAPSTER == 'true' ]]
 	then
 		st_time=$( ${DATE_CMD} +%s )
 		/bin/bash $INSTALL_PATH/install_cadvisor.sh
-		time_stats "${N1_COLOR}${MY_APP}: install_cadvisor done"
+		time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_cadvisor done"
 
 		st_time=$( ${DATE_CMD} +%s )
 		/bin/bash $INSTALL_PATH/install_heapster.sh
-		time_stats "${N1_COLOR}${MY_APP}: install_heapster done"
+		time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_heapster done"
 	fi
 fi
 
@@ -211,7 +211,7 @@ if [ "${INIT_ROLE}" = "master" ]; then
 	systemctl start kube-controller-manager
 	systemctl stop kubelet || true
 	systemctl start kubelet
-	time_stats "${N1_COLOR}${MY_APP}: wait for SUPERMASTER kubelet done"
+	time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: wait for SUPERMASTER kubelet done"
 fi
 
 # test
@@ -232,7 +232,7 @@ if [ "${INSTALL_KUBELET_ON_MASTER}" = "true" ]; then
 		echo "kubectl get nodes ${MY_SHORT_HOSTNAME} failed.."
 		exit ${ret}
 	fi
-	time_stats "${N1_COLOR}${MY_APP}: wait for MASTER kubelet done"
+	time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: wait for MASTER kubelet done"
 fi
 
 [ ! -d /export/rpc ] && mkdir -p /export/rpc
@@ -262,7 +262,7 @@ if [ "${INIT_ROLE}" = "supermaster" ]; then
 	st_time=$( ${DATE_CMD} +%s )
 	# WHY ?
 	systemctl restart keepalived || true
-	time_stats "${N1_COLOR}${MY_APP}: supermaster: restart keepalived"
+	time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME} (supermaster): restart keepalived for VIP done"
 fi
 
 exit $?

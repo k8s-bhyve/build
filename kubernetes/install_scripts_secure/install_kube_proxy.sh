@@ -19,6 +19,7 @@ cd ${WORKDIR}/workspace
 #clusterCIDR: "${NODE_NETWORK}"
 # -A KUBE-SERVICES -s ! 172.17.0.0/16 -d 172.18.0.2/32 -p tcp -m comment --comment "kube-system/coredns:dns-tcp cluster IP" -m tcp --dport 53 -j KUBE-MARK-MASQ
 #                      ^^^^^^^^^^^^^^ << clusterCIDR
+
 case "${CONTAINER_ENGINE}" in
 	docker)
 		cat <<EOF | tee /var/lib/kube-proxy/kube-proxy-config.yaml
@@ -37,7 +38,7 @@ apiVersion: kubeproxy.config.k8s.io/v1alpha1
 clientConnection:
   kubeconfig: "/export/kubecertificate/certs/kube-proxy.kubeconfig"
 mode: "iptables"
-clusterCIDR: "${FLANNEL_NET}"
+clusterCIDR: "${CLUSTERIPRANGE}"
 EOF
 		;;
 esac

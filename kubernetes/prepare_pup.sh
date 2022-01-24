@@ -82,7 +82,7 @@ master()
 	# доготавливаем keepalive
 	cat /etc/puppetlabs/puppet/tpl/keepalived_part_header.yaml >> /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml
 	unicast_peers=
-	for i in ${INIT_MASTERS_IPS}; do
+	for i in ${INIT_MASTER_IPS}; do
 		[ "${i}" = "${MY_IP}" ] && continue
 		if [ -z "${unicast_peers}" ]; then
 			unicast_peers="'${i}'"
@@ -147,7 +147,7 @@ cp -a /etc/puppetlabs/puppet/tpl/${role}.yaml /etc/puppetlabs/puppet/data/nodes/
 # доготавливаем динамику lsync
 lsync_init=0
 
-ALL_IPS=$( for i in ${INIT_MASTERS_IPS} ${INIT_NODES_IPS}; do
+ALL_IPS=$( for i in ${INIT_MASTER_IPS} ${INIT_WORKER_IPS}; do
 	echo $i
 done | sort -u )
 
@@ -192,6 +192,8 @@ sed -i'' -Ees:%%MASTER_HOSTNAME%%:${MASTER_HOSTNAME}:g \
 	-Ees:%%VIP%%:${VIP}:g \
 	/etc/puppetlabs/puppet/data/role/k8s-${real_role}.yaml
 
+MY_SHORT_HOSTNAME=$( hostname -s )
+
 cd /opt/puppetlabs/puppet
 
 st_time=$( ${DATE_CMD} +%s )
@@ -199,7 +201,7 @@ st_time=$( ${DATE_CMD} +%s )
 /usr/bin/tmux -2 -u new-session -d "/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp > /tmp/go 2>&1; /opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp > /tmp/go 2>&1; "
 #/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
 #/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
-time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: initial puppet apply"
+time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: initial puppet apply"
 
 echo "my role: ${real_role}, export /export/${real_role}/${MY_HOSTNAME}"
 if [ ! -d /export/${real_role}/${MY_HOSTNAME} ]; then
@@ -220,7 +222,7 @@ while [ ${max} -lt ${maxwait} ]; do
 	_ret=0
 	wait_msg="${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: sync/export role to masters node: ${N2_COLOR}[${max}/${maxwait}]${N0_COLOR}"
 	echo "rsync -avz -e \"ssh -oVerifyHostKeyDNS=yes -oStrictHostKeyChecking=no -oPasswordAuthentication=no\" --exclude tmp --exclude kubernetes /export/ ${i}:/export/"
-	for i in ${INIT_MASTERS_IPS}; do
+	for i in ${INIT_MASTER_IPS}; do
 		_res=$( timeout 10 rsync -avz -e "ssh -oVerifyHostKeyDNS=yes -oStrictHostKeyChecking=no -oPasswordAuthentication=no" --exclude tmp --exclude kubernetes /export/ ${i}:/export/ )
 		_ret=$?
 		case ${_ret} in

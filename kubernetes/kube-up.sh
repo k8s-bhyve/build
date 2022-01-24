@@ -47,12 +47,12 @@ time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: waiting master members d
 
 wait_for_workers=1
 
-${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: init nodes ips: ${INIT_NODES_IPS}, init_nodes_num: ${INIT_NODES_NUM}${N0_COLOR}"
-if [ -z "${INIT_NODES_IPS}" -o "${INIT_NODES_NUM}" = "0" ]; then
+${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: init nodes ips: ${INIT_WORKER_IPS}, init_nodes_num: ${INIT_NODES_NUM}${N0_COLOR}"
+if [ -z "${INIT_WORKER_IPS}" -o "${INIT_NODES_NUM}" = "0" ]; then
 	wait_for_workers=0
 	${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: no workers, im alone, skip waiting for workers${N0_COLOR}"
 elif [ "${INIT_NODES_NUM}" = "1" ]; then
-	_ip_test=$( echo "${INIT_NODES_IPS}" | awk '{printf $1}' )
+	_ip_test=$( echo "${INIT_WORKER_IPS}" | awk '{printf $1}' )
 	${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: init nodes 1, check for main IPS: [${_ip_test}]!=[${MY_IP}]${N0_COLOR}"
 	if [ "${_ip_test}" = "${MY_IP}" ]; then
 		wait_for_workers=0
@@ -169,20 +169,20 @@ case "${INIT_ROLE}" in
 		st_time=$( ${DATE_CMD} +%s )
 		echo "/export/kubernetes/certificates/install_ca.sh"
 		/export/kubernetes/certificates/install_ca.sh
-		time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: install_ca done"
+		time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_ca done"
 
 		st_time=$( ${DATE_CMD} +%s )
 		/export/kubernetes/certificates/install_certificates.sh
 		#/export/kubernetes/certificates/install_master.sh
-		time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: install_certificates done"
+		time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_certificates done"
 
 		st_time=$( ${DATE_CMD} +%s )
 		/export/kubernetes/certificates/install_kubeconfig.sh
-		time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: install_kubeconfig done"
+		time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_kubeconfig done"
 
 		st_time=$( ${DATE_CMD} +%s )
 		/export/kubernetes/certificates/data-encryption-keys.sh
-		time_stats "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: data-encryption-keys done"
+		time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: data-encryption-keys done"
 
 		multi_node=1
 		if [ "${k8s_master_num}" = "1" ]; then
