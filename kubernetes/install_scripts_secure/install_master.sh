@@ -100,7 +100,6 @@ if [ "${INSTALL_KUBELET_ON_MASTER}" = "true" ]; then
 fi
 
 # install on each master node
-
 st_time=$( ${DATE_CMD} +%s )
 /bin/bash $INSTALL_PATH/install_haproxy.sh
 if [  $? -ne 0 ]; then

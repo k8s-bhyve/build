@@ -8,7 +8,23 @@ progdir="${0%/*}"       # Program directory
 . /kubernetes/ansiicolor.subr
 . /kubernetes/time.subr
 
+if [ "${HAPROXY_ENABLE}" = "0" ]; then
+	${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: disable haproxy by HAPROXY_ENABLE${N0_COLOR}"
+	systemctl stop haproxy || true
+	systemctl disable haproxy
+	exit 0
+else
+	${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: enable haproxy by HAPROXY_ENABLE${N0_COLOR}"
+fi
+
 HAPROXY_CFG="/etc/haproxy/haproxy.cfg"
+
+VIP6=
+
+if [ -n "${EXT_IP}" ]; then
+	MYV6=$( echo ${EXT_IP} | tr "/" " " | awk '{printf $1}' )
+	VIP6="bind [${MYV6}]:443"
+fi
 
 [ "${ENABLE_DEBUG}" = "true" ] && set -x
 
@@ -19,6 +35,7 @@ global
         maxconn 4096
         maxpipes 1024
         daemon
+
 defaults
         log global
         mode tcp
@@ -30,9 +47,10 @@ defaults
         timeout connect 50000
         timeout client 500000
         timeout server 500000
-        frontend default_frontend
-        bind *:443
-        bind [::]:443
+
+frontend default_frontend
+        bind ${VIP}:443
+        ${VIP6}
         default_backend master-cluster
 backend master-cluster
 `#Install master nodes

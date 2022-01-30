@@ -13,6 +13,10 @@ progdir="${0%/*}"       # Program directory
 [ ! -d ${CERTIFICATE}/certs ] && err 1 "no such  $CERTIFICATE/certs"
 cd $CERTIFICATE/certs
 
+if [ "${HAPROXY_ENABLE}" = "0" ]; then
+	API_SERVER="${API_SERVER}:6443"
+fi
+
 # PARALLEL ?
 #Install worker kubelet
 IFS=','
