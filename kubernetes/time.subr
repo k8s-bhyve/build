@@ -33,7 +33,6 @@ time_stats()
 	abs_diff_time=$(( end_time - FULL_ST_TIME ))
 	abs_diff_time=$( displaytime ${abs_diff_time} )
 
-
 	${ECHO} "${*} ${N2_COLOR}in ${DIFF_TIME_COLOR}${diff_time}${N2_COLOR} ( absolute: ${W1_COLOR}${abs_diff_time} ${N2_COLOR})${N0_COLOR}"
 }
 
