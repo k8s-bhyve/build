@@ -159,6 +159,11 @@ ETCD_CLUSTERS_CERTS="${SERVERS}"
 ${ECHO} "ETCD_CLUSTERS_CERTS=\"${ETCD_CLUSTERS_CERTS}\"" >> /home/ubuntu/bootstrap.config
 maxwait=200
 
+echo "-----------"
+cat /home/ubuntu/bootstrap.config
+echo "----------"
+
+
 . /home/ubuntu/bootstrap.config
 
 case "${INIT_ROLE}" in
@@ -166,6 +171,26 @@ case "${INIT_ROLE}" in
 
 		real_role="master"
 		systemctl stop lsyncd.service || true
+
+		# mock
+		if [ -r /home/ubuntu/certs.tgz ]; then
+			st_time=$( ${DATE_CMD} +%s )
+			echo "/export/kubernetes/certificates/install_ca.sh"
+
+			echo
+			echo "found external certs"
+			echo
+			cd /home/ubuntu
+			tar xfz certs.tgz
+			[ -d /export/kubecertificate/certs ] && rm -rf /export/kubecertificate/certs
+			[ ! -d /export/kubecertificate ] && mkdir -p /export/kubecertificate
+			mv certs /export/kubecertificate/
+			chattr +i /export/kubecertificate/certs/*.pem
+			echo
+			time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_ca done"
+		else
+
+#
 		st_time=$( ${DATE_CMD} +%s )
 		echo "/export/kubernetes/certificates/install_ca.sh"
 		/export/kubernetes/certificates/install_ca.sh
@@ -175,6 +200,8 @@ case "${INIT_ROLE}" in
 		/export/kubernetes/certificates/install_certificates.sh
 		#/export/kubernetes/certificates/install_master.sh
 		time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: install_certificates done"
+#
+		fi
 
 		st_time=$( ${DATE_CMD} +%s )
 		/export/kubernetes/certificates/install_kubeconfig.sh

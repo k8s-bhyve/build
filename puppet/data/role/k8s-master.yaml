@@ -12,16 +12,6 @@ classes:
   - lsyncd
   - keepalived
 
-profile::package::entries:
-  tmux:
-    ensure: "present"
-  git:
-    ensure: "present"
-  socat:
-    ensure: "present"
-  nfs-common:
-    ensure: "present"
-
 cbsd_k8s::config::config_file_path: /kubernetes/config
 cbsd_k8s::config::config_source: %%CONFIG_SOURCE%%
 cbsd_k8s::config::etcd_ver: %%ETCD_VER%%
@@ -34,6 +24,8 @@ cbsd_k8s::config::apiserver_host: %%APISERVER_HOST%%
 cbsd_k8s::config::vip: %%VIP%%
 
 profile::package::entries:
+  cron:
+    ensure: "present"
   tmux:
     ensure: "present"
   git:

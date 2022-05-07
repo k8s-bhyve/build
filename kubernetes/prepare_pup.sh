@@ -29,7 +29,11 @@ role="${1}"
 gold()
 {
 	# in gold
-	wget -O /tmp/puppet.deb https://apt.puppet.com/puppet7-release-$( lsb_release -sc ).deb
+	#wget -O /tmp/puppet.deb https://apt.puppet.com/puppet7-release-$( lsb_release -sc ).deb
+
+	# ubuntu 22.04 ( Jammy Jellyfish ) still not in apt.puppet.com, use focal instead
+	wget -O /tmp/puppet.deb https://apt.puppet.com/puppet7-release-focal.deb
+
 	dpkg -i  /tmp/puppet.deb
 	apt update -y
 	apt install -y puppet-agent
@@ -166,6 +170,8 @@ echo "  - ${i}" >> /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml
 for i in ${NTP_SERVERS}; do
 	echo "  - ${i}" >> /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml
 done
+
+systemctl stop keepalived.service || true
 
 case "${role}" in
 	master|supermaster)

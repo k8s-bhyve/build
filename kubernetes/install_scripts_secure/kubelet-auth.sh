@@ -30,7 +30,7 @@ fi
 
 for i in $( seq 1 ${maxwait} ); do
 	${ECHO} "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: waiting for kubernetes-api [${i}/${maxwait}]...${N0_COLOR}"
-	timeout 5 kubectl get nodes > /dev/null 2>&1
+	timeout 2 kubectl get nodes > /dev/null 2>&1
 	ret=$?
 	case "${ret}" in
 		0)

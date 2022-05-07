@@ -22,6 +22,9 @@ if [ "${1}" != "gold" ]; then
 	. /kubernetes/time.subr
 	. /kubernetes/ansiicolor.subr
 
+	# for internal certs only
+	if [ ! -r /home/ubuntu/certs.tgz ]; then
+
 	echo "CONFIG TIME"
 	st_time=$( ${DATE_CMD} +%s )
 	systemctl stop chrony || true
@@ -34,6 +37,7 @@ if [ "${1}" != "gold" ]; then
 	diff_time=$( displaytime ${diff_time} )
 	diff_time=$(( end_time - st_time ))
 	${ECHO} "${N1_COLOR}${MY_APP}:${MY_SHORT_HOSTNAME}: config time done ${N2_COLOR}in ${diff_time}${N0_COLOR}"
+	fi
 fi
 
 config_swap()
