@@ -32,11 +32,11 @@ gold()
 	#wget -O /tmp/puppet.deb https://apt.puppet.com/puppet7-release-$( lsb_release -sc ).deb
 
 	# ubuntu 22.04 ( Jammy Jellyfish ) still not in apt.puppet.com, use focal instead
-	wget -O /tmp/puppet.deb https://apt.puppet.com/puppet7-release-focal.deb
+	wget -O /tmp/puppet.deb https://apt.puppet.com/puppet7-release-$( lsb_release -cs ).deb
 
 	dpkg -i  /tmp/puppet.deb
 	apt update -y
-	apt install -y puppet-agent
+	apt-get install --yes --force-yes puppet-agent
 	systemctl stop puppet.service >/dev/null 2>&1 || true
 	systemctl disable puppet.service >/dev/null 2>&1 || true
 	cd /home/ubuntu
@@ -72,10 +72,11 @@ gold()
 	/kubernetes/install_scripts_secure/install_binaries.sh
 	/kubernetes/install_scripts_secure/install_haproxy.sh
 	#docker pull k8s.gcr.io/kubernetes-dashboard-amd64:${DASHBOARD_VER}
-	apt clean -y
+	apt clean -y all
 	rm -rf /var/lib/cloud
 	rm -f /home/ubuntu/authorized_keys /home/ubuntu/id_ed25519 /home/ubuntu/kubernetes.tgz
 	rm -f /etc/puppetlabs/puppet/data/role/gold.yaml /etc/puppetlabs/puppet/data/nodes/*
+	rm -f /export/tmp/workspace/*
 	exit 0
 }
 

@@ -54,10 +54,17 @@ if [ "${INIT_ROLE}" = "gold" ]; then
 	rm -rf /kubernetes
 	cd /
 	ln -s ~ubuntu/kubernetes /kubernetes
-	# fixes for "debconf: unable to initialize frontend: Dialog"
-	#apt -y install dialog
+
+	cat >/etc/apt/apt.conf.d/00.force.conf <<EOF
+Dpkg::Options {
+   "--force-confdef";
+   "--force-confold";
+}
+EOF
+
 	sed -i "s/^GRUB_TIMEOUT.*\$/GRUB_TIMEOUT=0/g" /etc/default/grub
-	grub-mkconfig
+	grub-mkconfig -o /boot/grub/grub.cfg
+	#grub-mkconfig
 
 	export DEBIAN_FRONTEND="noninteractive"
 
