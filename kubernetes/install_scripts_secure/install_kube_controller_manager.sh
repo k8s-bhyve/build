@@ -31,7 +31,6 @@ ExecStart=/usr/local/bin/kube-controller-manager \\
     --cluster-signing-key-file=$CERTIFICATE_MOUNT_PATH/ca-key.pem \\
     --service-cluster-ip-range=$CLUSTERIPRANGE \\
     --configure-cloud-routes=false \\
-    --logtostderr=true \\
     --root-ca-file=$CERTIFICATE_MOUNT_PATH/ca.pem \\
     --service-account-private-key-file=$CERTIFICATE_MOUNT_PATH/server-key.pem \\
     --kubeconfig=/export/kubecertificate/certs/kube-controller-manager.kubeconfig \\
