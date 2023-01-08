@@ -92,6 +92,11 @@ EOF
 		systemctl disable ${i}
 	done
 
+	# upgrade grub interactive? (select GRUB install device)
+	for i in grub-common grub-efi-amd64 grub-efi-amd64-bin grub-efi-amd64-bin  grub2-common; do
+		apt-mark hold ${i}
+	done
+
 	echo "update"
 	apt-get update
 	echo "upgrade"
