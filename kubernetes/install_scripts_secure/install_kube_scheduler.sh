@@ -14,8 +14,10 @@ progdir="${0%/*}"       # Program directory
 
 # config still alpha ?
 # https://github.com/kelseyhightower/kubernetes-the-hard-way/issues/427
+# apiVersion: kubescheduler.config.k8s.io/v1beta3
+
 cat <<EOF | sudo tee /etc/kubernetes/kube-scheduler.yaml
-apiVersion: kubescheduler.config.k8s.io/v1beta3
+apiVersion: kubescheduler.config.k8s.io/v1
 kind: KubeSchedulerConfiguration
 clientConnection:
   kubeconfig: "/export/kubecertificate/certs/kube-scheduler.kubeconfig"

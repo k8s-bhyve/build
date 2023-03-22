@@ -31,6 +31,9 @@ gold()
 	# in gold
 	#wget -O /tmp/puppet.deb https://apt.puppet.com/puppet7-release-$( lsb_release -sc ).deb
 
+	systemctl enable systemd-resolved
+	systemctl start systemd-resolved
+
 	# ubuntu 22.04 ( Jammy Jellyfish ) still not in apt.puppet.com, use focal instead
 	wget -O /tmp/puppet.deb https://apt.puppet.com/puppet7-release-$( lsb_release -cs ).deb
 
@@ -206,6 +209,12 @@ cd /opt/puppetlabs/puppet
 st_time=$( ${DATE_CMD} +%s )
 # daemon? not work correctly: need for inv
 /usr/bin/tmux -2 -u new-session -d "/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp > /tmp/go 2>&1; /opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp > /tmp/go 2>&1; "
+
+# we need VIP on supermaster only
+if [ "${role}" != "supermaster" ]; then
+	systemctl stop keepalived.service || true
+fi
+
 #/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
 #/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
 time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME}: initial puppet apply"

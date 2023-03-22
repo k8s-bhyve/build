@@ -53,7 +53,7 @@ config_swap
 if [ "${INIT_ROLE}" = "gold" ]; then
 	rm -rf /kubernetes
 	cd /
-	ln -s ~ubuntu/kubernetes /kubernetes
+	ln -s /home/debian/kubernetes /kubernetes
 
 	cat >/etc/apt/apt.conf.d/00.force.conf <<EOF
 Dpkg::Options {

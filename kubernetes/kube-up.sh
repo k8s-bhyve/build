@@ -343,9 +343,9 @@ case "${real_role}" in
 				exit 1
 			fi
 			# export for bscp as ubuntu user
-			cp -a /export/kubecertificate/certs/admin.kubeconfig /home/ubuntu/config
-			chmod 0400 /home/ubuntu/config
-			chown ubuntu:ubuntu /home/ubuntu/config
+			cp -a /export/kubecertificate/certs/admin.kubeconfig /home/debian/config
+			chmod 0400 /home/debian/config
+			chown debian:debian /home/debian/config
 		fi
 		[ -x /root/bin/rpc-executor.sh ] && /root/bin/rpc-executor.sh
 		;;

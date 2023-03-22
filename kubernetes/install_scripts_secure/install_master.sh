@@ -257,11 +257,11 @@ exit \${ret}
 EOF
 fi
 
-if [ "${INIT_ROLE}" = "supermaster" ]; then
+if [ "${INIT_ROLE}" != "supermaster" ]; then
 	st_time=$( ${DATE_CMD} +%s )
 	# WHY ?
 	systemctl restart keepalived || true
-	time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME} (supermaster): restart keepalived for VIP done"
+	time_stats "${N1_COLOR}${MY_APP}: ${MY_SHORT_HOSTNAME} restart keepalived for VIP done"
 fi
 
 exit $?
