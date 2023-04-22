@@ -46,6 +46,15 @@ for i in $( seq 1 ${maxwait} ); do
 	sleep 1
 done
 
+#echo "CREATE default ServiceAccount"
+#cat <<EOF | kubectl apply --kubeconfig /export/kubecertificate/certs/admin.kubeconfig -f -
+#apiVersion: v1
+#kind: ServiceAccount
+#metadata:
+#  name: default
+#EOF
+#kubectl get serviceaccounts --kubeconfig /export/kubecertificate/certs/admin.kubeconfig
+
 cat <<EOF | kubectl apply --kubeconfig /export/kubecertificate/certs/admin.kubeconfig -f -
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole

@@ -34,7 +34,6 @@ ExecStart=/usr/local/bin/kube-controller-manager \\
     --root-ca-file=$CERTIFICATE_MOUNT_PATH/ca.pem \\
     --service-account-private-key-file=$CERTIFICATE_MOUNT_PATH/server-key.pem \\
     --kubeconfig=/export/kubecertificate/certs/kube-controller-manager.kubeconfig \\
-    --pod-eviction-timeout=30s \\
     --node-monitor-grace-period=20s \\
     --v=2
 Restart=on-failure
@@ -44,6 +43,10 @@ LimitNOFILE=65536
 [Install]
 WantedBy=multi-user.target
 EOF
+
+# deprecated in 1.27
+#    --pod-eviction-timeout=30s \\
+
 
 systemctl daemon-reload
 systemctl enable kube-controller-manager
