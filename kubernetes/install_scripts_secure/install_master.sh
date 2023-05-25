@@ -194,16 +194,15 @@ if [ "${INIT_ROLE}" = "master" ]; then
 	maxwait=120
 	supermaster_hostname=
 	for i in $( seq 1 ${maxwait} ); do
-		if [ -z "${supermaster_hostname}" ]; then
-			echo "${MY_SHORT_HOSTNAME}: waiting for kubectl get nodes master: [${i}/${maxwait}]..."
-			[ -r /export/master/supermaster ] && supermaster_hostname=$( cat /export/master/supermaster | awk '{printf $1}' )
-			if [ -n "${supermaster_hostname}" ]; then
-				kubectl get nodes ${supermaster_hostname} > /dev/null 2>&1
-				ret=$?
-				[ ${ret} -eq 0 ] && break
-			fi
+		ret=1
+		echo "${MY_SHORT_HOSTNAME}: waiting for kubectl get nodes master: [${i}/${maxwait}]..."
+		[ -r /export/master/supermaster ] && supermaster_hostname=$( cat /export/master/supermaster | awk '{printf $1}' )
+		if [ -n "${supermaster_hostname}" ]; then
+			timeout 8 kubectl get nodes ${supermaster_hostname} > /dev/null 2>&1
+			ret=$?
+			[ ${ret} -eq 0 ] && break
 		fi
-		sleep 1
+		[ ${ret} -ne 0 ] && sleep 1
 	done
 	# re-register if necessary
 	systemctl stop kube-controller-manager || true

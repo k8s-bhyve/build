@@ -359,3 +359,8 @@ esac
 #iptables -t nat -A PREROUTING -p tcp --dport 31000 -j DNAT --to-destination 10.0.0.2:31000 # https
 
 /export/kubernetes/set_hosts.sh
+
+cp -a /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml-o
+grep -v 'keepalived::service_ensure' /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml-o > /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml
+
+exit 0

@@ -178,6 +178,19 @@ done
 systemctl stop keepalived.service || true
 
 case "${role}" in
+	master)
+		cat >> /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml <<EOF
+keepalived::service_ensure: stopped
+EOF
+		;;
+	supermaster)
+		cat >> /etc/puppetlabs/puppet/data/nodes/${MY_HOSTNAME}.yaml <<EOF
+keepalived::service_ensure: running
+EOF
+		;;
+esac
+
+case "${role}" in
 	master|supermaster)
 		real_role="master"
 		master
@@ -209,11 +222,6 @@ cd /opt/puppetlabs/puppet
 st_time=$( ${DATE_CMD} +%s )
 # daemon? not work correctly: need for inv
 /usr/bin/tmux -2 -u new-session -d "/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp > /tmp/go 2>&1; /opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp > /tmp/go 2>&1; "
-
-# we need VIP on supermaster only
-if [ "${role}" != "supermaster" ]; then
-	systemctl stop keepalived.service || true
-fi
 
 #/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
 #/opt/puppetlabs/bin/puppet apply --show_diff --hiera_config=/etc/puppetlabs/puppet/hiera.yaml --log_level=notice /etc/puppetlabs/puppet/site.pp
